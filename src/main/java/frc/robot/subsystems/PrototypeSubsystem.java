@@ -36,7 +36,7 @@ public class PrototypeSubsystem extends SubsystemBase {
 
   public void stopMotors() {
     leftMotor.set(0);
-    rightMotor.set(0);
+    rightMotor.set(0)
   }
 
   @Override
