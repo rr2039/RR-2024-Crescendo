@@ -20,6 +20,8 @@ public class Intake extends SubsystemBase {
   CANSparkMax flapper;
   CANSparkMax intake;
 
+  // Absolute enc for flap
+
   SparkPIDController flapperPID;
 
   /** Creates a new Intake. */
@@ -27,6 +29,9 @@ public class Intake extends SubsystemBase {
     belt = new CANSparkMax(IntakeConstants.beltCanId, MotorType.kBrushless);
     flapper = new CANSparkMax(IntakeConstants.flapperCanId, MotorType.kBrushless);
     intake = new CANSparkMax(IntakeConstants.intakeCanId, MotorType.kBrushless);
+
+    // get absolute enc for flap
+    // set conversion factor
 
     flapper.restoreFactoryDefaults();
 
@@ -36,6 +41,7 @@ public class Intake extends SubsystemBase {
     flapper.setIdleMode(IdleMode.kBrake);
 
     flapperPID = flapper.getPIDController();
+    // set feedback device as flap enc
     flapperPID.setP(IntakeConstants.kFlapperP);
 
     flapperPID.setI(IntakeConstants.kFlapperI);
@@ -46,6 +52,10 @@ public class Intake extends SubsystemBase {
 
     flapper.burnFlash();
   }
+
+  // set speed for belt
+
+  // set speed for intake
 
   public void setFlapperSpeed(double speed) {
     flapper.set(speed);

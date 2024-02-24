@@ -8,6 +8,8 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 
@@ -18,13 +20,16 @@ public class Shoulder extends SubsystemBase {
 
   CANSparkMax leftShoulder;
   CANSparkMax rightShoulder;
-
+  AbsoluteEncoder shoulderEnc;
   SparkPIDController shoulderPID;  
 
   /** Creates a new Shoulder. */
   public Shoulder() {
     leftShoulder = new CANSparkMax(ShoulderConstants.leftShoulderCanId, MotorType.kBrushless);
     rightShoulder = new CANSparkMax(ShoulderConstants.rightShoulderCanId, MotorType.kBrushless);
+
+    shoulderEnc = rightShoulder.getAbsoluteEncoder(Type.kDutyCycle);
+    shoulderEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
 
     rightShoulder.restoreFactoryDefaults();
     leftShoulder.restoreFactoryDefaults();
@@ -38,14 +43,12 @@ public class Shoulder extends SubsystemBase {
     leftShoulder.setIdleMode(IdleMode.kBrake);
 
     shoulderPID = rightShoulder.getPIDController();
+    shoulderPID.setFeedbackDevice(shoulderEnc);
+    
     shoulderPID.setP(ShoulderConstants.kShoulderP);
-
     shoulderPID.setI(ShoulderConstants.kShoulderI);
-
     shoulderPID.setD(ShoulderConstants.kShoulderD);
-
     shoulderPID.setFF(ShoulderConstants.kShoulderFF);
-
 
     rightShoulder.burnFlash();
     leftShoulder.burnFlash();

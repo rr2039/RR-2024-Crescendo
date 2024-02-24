@@ -17,12 +17,17 @@ public class Shooter extends SubsystemBase {
   CANSparkMax rightShooter;
   CANSparkMax leftShooter;
 
+  //Absolute encoder
+
   SparkPIDController shooterPID;
 
   /** Creates a new Shooter. */
   public Shooter() {
     rightShooter = new CANSparkMax(ShooterConstants.rightShooterCanId, MotorType.kBrushless);
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
+
+    // Get encoder
+    // Set conversion factor
 
     rightShooter.restoreFactoryDefaults();
     leftShooter.restoreFactoryDefaults();
@@ -33,6 +38,7 @@ public class Shooter extends SubsystemBase {
     leftShooter.setIdleMode(IdleMode.kBrake);
 
     shooterPID = rightShooter.getPIDController();
+    // Set feedback device as enc
     shooterPID.setP(ShooterConstants.kShooterP);
 
     shooterPID.setI(ShooterConstants.kShooterI);
@@ -50,6 +56,8 @@ public class Shooter extends SubsystemBase {
     rightShooter.set(speed);
   }
   
+
+  // Set velocity via PID
 
   @Override
   public void periodic() {

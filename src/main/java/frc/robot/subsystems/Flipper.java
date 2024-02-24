@@ -17,12 +17,14 @@ import frc.robot.Constants.FlipperConstants;
 public class Flipper extends SubsystemBase {
 
   CANSparkMax flipper;
-
+  // absolute enc
   SparkPIDController flipperPID;
 
   /** Creates a new Flipper. */
   public Flipper() {
     flipper = new CANSparkMax(FlipperConstants.flipperCanId, MotorType.kBrushless);
+    // absolute enc
+    // set conversion factor
 
     flipper.restoreFactoryDefaults();
 
@@ -32,6 +34,7 @@ public class Flipper extends SubsystemBase {
     flipper.setIdleMode(IdleMode.kBrake);
 
     flipperPID = flipper.getPIDController();
+    // set feedback device to enc
     flipperPID.setP(FlipperConstants.kFlipperP);
 
     flipperPID.setI(FlipperConstants.kFlipperI);
