@@ -8,10 +8,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.IntakeIn;
+import frc.robot.commands.IntakeOut;
+import frc.robot.commands.ShooterFeed;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shoulder;
@@ -74,10 +74,14 @@ public class RobotContainer {
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
+    new JoystickButton(m_operatorController, Button.kRightBumper.value)
+        .whileTrue(new ShooterFeed(m_intake));
 
     // OPERATOR CONTROLLER
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
         .whileTrue(new IntakeIn(m_intake, m_shoulder));
+    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
+        .whileTrue(new IntakeOut(m_intake, m_shoulder));
   }
 
   /**
