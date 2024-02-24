@@ -74,6 +74,10 @@ public class Shoulder extends SubsystemBase {
     return shoulderEnc.getPosition();
   }
 
+  public boolean isHome() {
+    return shoulderEnc.getPosition() == ShoulderConstants.shoulderHome;
+  }
+
   public void setShoulderSpeed(double speed) {
     rightShoulder.set(speed);
   }
