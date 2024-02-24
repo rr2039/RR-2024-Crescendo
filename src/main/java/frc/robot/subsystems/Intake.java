@@ -8,7 +8,9 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,9 +21,7 @@ public class Intake extends SubsystemBase {
   CANSparkMax belt;
   CANSparkMax flapper;
   CANSparkMax intake;
-
-  // Absolute enc for flap
-
+  AbsoluteEncoder flapperEnc;
   SparkPIDController flapperPID;
 
   /** Creates a new Intake. */
@@ -30,8 +30,8 @@ public class Intake extends SubsystemBase {
     flapper = new CANSparkMax(IntakeConstants.flapperCanId, MotorType.kBrushless);
     intake = new CANSparkMax(IntakeConstants.intakeCanId, MotorType.kBrushless);
 
-    // get absolute enc for flap
-    // set conversion factor
+    flapperEnc = flapper.getAbsoluteEncoder(Type.kDutyCycle);
+    flapperEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
 
     flapper.restoreFactoryDefaults();
 
@@ -41,21 +41,23 @@ public class Intake extends SubsystemBase {
     flapper.setIdleMode(IdleMode.kBrake);
 
     flapperPID = flapper.getPIDController();
-    // set feedback device as flap enc
+    flapperPID.setFeedbackDevice(flapperEnc);
+
     flapperPID.setP(IntakeConstants.kFlapperP);
-
     flapperPID.setI(IntakeConstants.kFlapperI);
-
     flapperPID.setD(IntakeConstants.kFlapperD);
-
     flapperPID.setFF(IntakeConstants.kFlapperFF);
 
     flapper.burnFlash();
   }
 
-  // set speed for belt
+  public void setBeltSpeed(double speed) {
+    belt.set(speed);
+  }
 
-  // set speed for intake
+  public void setIntakeSpeed(double speed) {
+    intake.set(speed);
+  }
 
   public void setFlapperSpeed(double speed) {
     flapper.set(speed);

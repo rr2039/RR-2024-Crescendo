@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -16,9 +19,7 @@ public class Shooter extends SubsystemBase {
   
   CANSparkMax rightShooter;
   CANSparkMax leftShooter;
-
-  //Absolute encoder
-
+  AbsoluteEncoder shooterEnc;
   SparkPIDController shooterPID;
 
   /** Creates a new Shooter. */
@@ -26,8 +27,8 @@ public class Shooter extends SubsystemBase {
     rightShooter = new CANSparkMax(ShooterConstants.rightShooterCanId, MotorType.kBrushless);
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
 
-    // Get encoder
-    // Set conversion factor
+    shooterEnc = rightShooter.getAbsoluteEncoder(Type.kDutyCycle);
+    shooterEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
 
     rightShooter.restoreFactoryDefaults();
     leftShooter.restoreFactoryDefaults();
@@ -38,15 +39,12 @@ public class Shooter extends SubsystemBase {
     leftShooter.setIdleMode(IdleMode.kBrake);
 
     shooterPID = rightShooter.getPIDController();
-    // Set feedback device as enc
+    shooterPID.setFeedbackDevice(shooterEnc);
+
     shooterPID.setP(ShooterConstants.kShooterP);
-
     shooterPID.setI(ShooterConstants.kShooterI);
-
     shooterPID.setD(ShooterConstants.kShooterD);
-
     shooterPID.setFF(ShooterConstants.kShooterFF);
-
 
     rightShooter.burnFlash();
     leftShooter.burnFlash();
@@ -56,8 +54,9 @@ public class Shooter extends SubsystemBase {
     rightShooter.set(speed);
   }
   
-
-  // Set velocity via PID
+  public void moveFlapperToPos(double velocity) {
+    shooterPID.setReference(velocity, ControlType.kVelocity);
+  }
 
   @Override
   public void periodic() {
