@@ -28,7 +28,7 @@ public final class Constants {
     TEST, PROD
   }
 
-  public static final MODES CODEMODE = MODES.TEST;
+  public static final MODES CODEMODE = MODES.PROD;
 
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
