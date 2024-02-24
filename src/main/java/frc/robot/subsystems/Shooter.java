@@ -12,7 +12,11 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 
 public class Shooter extends SubsystemBase {
@@ -22,6 +26,14 @@ public class Shooter extends SubsystemBase {
   AbsoluteEncoder shooterEnc;
   SparkPIDController shooterPID;
 
+  ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter");
+  GenericEntry shooterPos;
+  GenericEntry shooterSetpoint;
+  GenericEntry shooterP;
+  GenericEntry shooterI;
+  GenericEntry shooterD;
+  GenericEntry shooterFF;
+
   /** Creates a new Shooter. */
   public Shooter() {
     rightShooter = new CANSparkMax(ShooterConstants.rightShooterCanId, MotorType.kBrushless);
@@ -29,6 +41,7 @@ public class Shooter extends SubsystemBase {
 
     shooterEnc = rightShooter.getAbsoluteEncoder(Type.kDutyCycle);
     shooterEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
+    shooterPos = shooterTab.add("ShooterPos", getShooterPos()).getEntry();
 
     rightShooter.restoreFactoryDefaults();
     leftShooter.restoreFactoryDefaults();
@@ -42,12 +55,20 @@ public class Shooter extends SubsystemBase {
     shooterPID.setFeedbackDevice(shooterEnc);
 
     shooterPID.setP(ShooterConstants.kShooterP);
+    shooterP = shooterTab.add("ShooterP", shooterPID.getP(0)).getEntry();
     shooterPID.setI(ShooterConstants.kShooterI);
+    shooterI = shooterTab.add("ShooterI", shooterPID.getP(0)).getEntry();
     shooterPID.setD(ShooterConstants.kShooterD);
+    shooterD = shooterTab.add("ShooterD", shooterPID.getP(0)).getEntry();
     shooterPID.setFF(ShooterConstants.kShooterFF);
+    shooterFF = shooterTab.add("ShooterFF", shooterPID.getP(0)).getEntry();
 
     rightShooter.burnFlash();
     leftShooter.burnFlash();
+  }
+
+  public double getShooterPos() {
+    return shooterEnc.getPosition();
   }
 
   public void setShooterSpeed(double speed) {
@@ -61,5 +82,24 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    shooterPos.setDouble(getShooterPos());
+    if (Constants.CODEMODE == Constants.MODES.TEST) {
+      double tempP = shooterP.getDouble(shooterPID.getP(0));
+      if (shooterPID.getP(0) != tempP) {
+        shooterPID.setP(tempP, 0);
+      }
+      double tempI = shooterI.getDouble(shooterPID.getI(0));
+      if (shooterPID.getI(0) != tempI) {
+        shooterPID.setI(tempI, 0);
+      }
+      double tempD = shooterD.getDouble(shooterPID.getD(0));
+      if (shooterPID.getD(0) != tempD) {
+        shooterPID.setD(tempD, 0);
+      }
+      double tempFF = shooterFF.getDouble(shooterPID.getFF(0));
+      if (shooterPID.getFF(0) != tempFF) {
+        shooterPID.setFF(tempFF, 0);
+      }
+    }
   }
 }

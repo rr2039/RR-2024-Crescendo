@@ -13,7 +13,11 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
@@ -24,6 +28,14 @@ public class Intake extends SubsystemBase {
   AbsoluteEncoder flapperEnc;
   SparkPIDController flapperPID;
 
+  ShuffleboardTab flapperTab = Shuffleboard.getTab("Flapper");
+  GenericEntry flapperPos;
+  GenericEntry flapperSetpoint;
+  GenericEntry flapperP;
+  GenericEntry flapperI;
+  GenericEntry flapperD;
+  GenericEntry flapperFF;
+
   /** Creates a new Intake. */
   public Intake() {
     belt = new CANSparkMax(IntakeConstants.beltCanId, MotorType.kBrushless);
@@ -32,6 +44,7 @@ public class Intake extends SubsystemBase {
 
     flapperEnc = flapper.getAbsoluteEncoder(Type.kDutyCycle);
     flapperEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
+    flapperPos = flapperTab.add("FlapperPos", getFlapperPos()).getEntry();
 
     flapper.restoreFactoryDefaults();
 
@@ -42,13 +55,21 @@ public class Intake extends SubsystemBase {
 
     flapperPID = flapper.getPIDController();
     flapperPID.setFeedbackDevice(flapperEnc);
-
+    
     flapperPID.setP(IntakeConstants.kFlapperP);
+    flapperP = flapperTab.add("FlapperP", flapperPID.getP(0)).getEntry();
     flapperPID.setI(IntakeConstants.kFlapperI);
+    flapperI = flapperTab.add("FlapperI", flapperPID.getP(0)).getEntry();
     flapperPID.setD(IntakeConstants.kFlapperD);
+    flapperD = flapperTab.add("FlapperD", flapperPID.getP(0)).getEntry();
     flapperPID.setFF(IntakeConstants.kFlapperFF);
+    flapperFF = flapperTab.add("FlapperFF", flapperPID.getP(0)).getEntry();
 
     flapper.burnFlash();
+  }
+
+  public double getFlapperPos() {
+    return flapperEnc.getPosition();
   }
 
   public void setBeltSpeed(double speed) {
@@ -70,5 +91,24 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    flapperPos.setDouble(getFlapperPos());
+    if (Constants.CODEMODE == Constants.MODES.TEST) {
+      double tempP = flapperP.getDouble(flapperPID.getP(0));
+      if (flapperPID.getP(0) != tempP) {
+        flapperPID.setP(tempP, 0);
+      }
+      double tempI = flapperI.getDouble(flapperPID.getI(0));
+      if (flapperPID.getI(0) != tempI) {
+        flapperPID.setI(tempI, 0);
+      }
+      double tempD = flapperD.getDouble(flapperPID.getD(0));
+      if (flapperPID.getD(0) != tempD) {
+        flapperPID.setD(tempD, 0);
+      }
+      double tempFF = flapperFF.getDouble(flapperPID.getFF(0));
+      if (flapperPID.getFF(0) != tempFF) {
+        flapperPID.setFF(tempFF, 0);
+      }
+    }
   }
 }

@@ -57,7 +57,6 @@ public class Shoulder extends SubsystemBase {
 
     shoulderPID = rightShoulder.getPIDController();
     shoulderPID.setFeedbackDevice(shoulderEnc);
-    shoulderPID = rightShoulder.getPIDController();
     shoulderPID.setP(ShoulderConstants.kShoulderP, 0);
     shoulderP = shoulderTab.add("ShoulderP", shoulderPID.getP(0)).getEntry();
     shoulderPID.setI(ShoulderConstants.kShoulderI, 0);
@@ -66,7 +65,6 @@ public class Shoulder extends SubsystemBase {
     shoulderD = shoulderTab.add("ShoulderD", shoulderPID.getD(0)).getEntry();
     shoulderPID.setFF(ShoulderConstants.kShoulderFF, 0);
     shoulderFF = shoulderTab.add("ShoulderFF", shoulderPID.getFF(0)).getEntry();
-
 
     rightShoulder.burnFlash();
     leftShoulder.burnFlash();
