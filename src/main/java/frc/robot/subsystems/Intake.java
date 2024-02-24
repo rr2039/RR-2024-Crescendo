@@ -10,10 +10,13 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,6 +30,10 @@ public class Intake extends SubsystemBase {
   CANSparkMax intake;
   AbsoluteEncoder flapperEnc;
   SparkPIDController flapperPID;
+
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
+  ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
+  private ColorMatch m_colorMatcher = new ColorMatch();
 
   ShuffleboardTab flapperTab = Shuffleboard.getTab("Flapper");
   GenericEntry flapperPos;
@@ -66,6 +73,12 @@ public class Intake extends SubsystemBase {
     flapperFF = flapperTab.add("FlapperFF", flapperPID.getP(0)).getEntry();
 
     flapper.burnFlash();
+
+    m_colorMatcher.addColorMatch(IntakeConstants.noteColor);
+  }
+
+  public boolean hasNote() {
+    return m_colorMatcher.matchClosestColor(colorSensor.getColor()).color == IntakeConstants.noteColor;
   }
 
   public double getFlapperPos() {

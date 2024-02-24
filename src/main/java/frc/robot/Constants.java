@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.util.Color;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -87,6 +88,8 @@ public final class Constants {
     public static final int leftShoulderCanId = 3;
     public static final int rightShoulderCanId = 4;
 
+    public static final double shoulderHome = 60.0;
+
     public static final double kShoulderP = 0;
     public static final double kShoulderI = 0;
     public static final double kShoulderD = 0;
@@ -98,6 +101,11 @@ public final class Constants {
     public static final int beltCanId = 5;
     public static final int flapperCanId = 6;
     public static final int intakeCanId = 7;
+
+    public static final double flapperHome = 0;
+    public static final double flapperGround = 45;
+
+    public static final Color noteColor = new Color(0.143, 0.427, 0.429);
 
     public static final double kFlapperP = 0;
     public static final double kFlapperI = 0;
@@ -180,6 +188,8 @@ public final class Constants {
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriveDeadband = 0.05;
+    public static final int kOperatorControllerPort = 1;
+    public static final double kOperatorDeadband = 0.05;
   }
 
   public static final class AutoConstants {
