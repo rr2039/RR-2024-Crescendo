@@ -52,17 +52,72 @@ public final class Constants {
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
-    public static final int kFrontLeftDrivingCanId = 11;
-    public static final int kRearLeftDrivingCanId = 13;
-    public static final int kFrontRightDrivingCanId = 15;
-    public static final int kRearRightDrivingCanId = 17;
+    public static final int kFrontLeftDrivingCanId = 13;
+    public static final int kRearLeftDrivingCanId = 15;
+    public static final int kFrontRightDrivingCanId = 17;
+    public static final int kRearRightDrivingCanId = 19;
 
-    public static final int kFrontLeftTurningCanId = 10;
-    public static final int kRearLeftTurningCanId = 12;
-    public static final int kFrontRightTurningCanId = 14;
-    public static final int kRearRightTurningCanId = 16;
+    public static final int kFrontLeftTurningCanId = 12;
+    public static final int kRearLeftTurningCanId = 14;
+    public static final int kFrontRightTurningCanId = 16;
+    public static final int kRearRightTurningCanId = 18;
 
     public static final boolean kGyroReversed = false;
+  }
+
+  public static final class ShooterConstants {
+    // SPARK MAX CAN IDs
+    public static final int leftShooterCanId = 1;
+    public static final int rightShooterCanId = 2;
+
+    public static final double kShooterP = 0;
+    public static final double kShooterI = 0;
+    public static final double kShooterD = 0;
+    public static final double kShooterFF = 0;
+  }
+
+  public static final class ShoulderConstants {
+    //SPARK MAX CAN IDs
+    public static final int leftShoulderCanId = 3;
+    public static final int rightShoulderCanId = 4;
+
+    public static final double kShoulderP = 0;
+    public static final double kShoulderI = 0;
+    public static final double kShoulderD = 0;
+    public static final double kShoulderFF = 0;
+  }
+
+  public static final class IntakeConstants {
+    //SPARK MAX CAN IDs
+    public static final int beltCanId = 5;
+    public static final int flapperCanId = 6;
+    public static final int intakeCanId = 7;
+
+    public static final double kFlapperP = 0;
+    public static final double kFlapperI = 0;
+    public static final double kFlapperD = 0;
+    public static final double kFlapperFF = 0;
+  }
+
+  public static final class FlipperConstants {
+    //SPARK MAX CAN IDs
+    public static final int flipperCanId = 8;
+
+    public static final double kFlipperP = 0;
+    public static final double kFlipperI = 0;
+    public static final double kFlipperD = 0;
+    public static final double kFlipperFF = 0;
+  }
+
+  public static final class ClimberConstants {
+    //SPARK MAX CAN IDs
+    public static final int leftClimberCanId = 9;
+    public static final int rightClimberCanId = 10;
+
+    public static final double kClimberP = 0;
+    public static final double kClimberI = 0;
+    public static final double kClimberD = 0;
+    public static final double kClimberFF = 0;
   }
 
   public static final class ModuleConstants {
