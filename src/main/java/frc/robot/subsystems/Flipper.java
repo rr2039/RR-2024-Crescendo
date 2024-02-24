@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -17,14 +19,15 @@ import frc.robot.Constants.FlipperConstants;
 public class Flipper extends SubsystemBase {
 
   CANSparkMax flipper;
-  // absolute enc
+  AbsoluteEncoder flipperEnc;
   SparkPIDController flipperPID;
 
   /** Creates a new Flipper. */
   public Flipper() {
     flipper = new CANSparkMax(FlipperConstants.flipperCanId, MotorType.kBrushless);
-    // absolute enc
-    // set conversion factor
+    
+    flipperEnc = flipper.getAbsoluteEncoder(Type.kDutyCycle);
+    flipperEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
 
     flipper.restoreFactoryDefaults();
 
@@ -34,13 +37,11 @@ public class Flipper extends SubsystemBase {
     flipper.setIdleMode(IdleMode.kBrake);
 
     flipperPID = flipper.getPIDController();
-    // set feedback device to enc
+    flipperPID.setFeedbackDevice(flipperEnc);
+
     flipperPID.setP(FlipperConstants.kFlipperP);
-
     flipperPID.setI(FlipperConstants.kFlipperI);
-
     flipperPID.setD(FlipperConstants.kFlipperD);
-
     flipperPID.setFF(FlipperConstants.kFlipperFF);
 
     flipper.burnFlash();
