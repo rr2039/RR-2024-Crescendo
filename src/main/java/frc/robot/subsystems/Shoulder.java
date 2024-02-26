@@ -100,6 +100,10 @@ public class Shoulder extends SubsystemBase {
     return shoulderCurSetpoint;
   }
 
+  public boolean atShoulderSetpoint() {
+    return getShoulderPos() == shoulderCurSetpoint;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

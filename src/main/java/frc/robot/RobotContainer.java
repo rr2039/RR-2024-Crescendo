@@ -15,6 +15,7 @@ import frc.robot.commands.IntakeOut;
 import frc.robot.commands.ShooterFeed;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
 import frc.utils.PoseEstimatorSubsystem;
 import frc.utils.LEDStrip;
@@ -34,6 +35,7 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Intake m_intake = new Intake();
   private final Shoulder m_shoulder = new Shoulder();
+  private final Shooter m_shooter = new Shooter(m_intake::hasNote);
 
   public PoseEstimatorSubsystem m_poseEst = new frc.utils.PoseEstimatorSubsystem(m_robotDrive::newHeading, m_robotDrive::getModulePositions, m_robotDrive::getModuleStates);
   public LEDUtility m_ledUtil = new LEDUtility(0);
@@ -88,7 +90,7 @@ public class RobotContainer {
 
     // OPERATOR CONTROLLER
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
-        .whileTrue(new IntakeIn(m_intake, m_shoulder, m_ledUtil, m_driverController, m_operatorController));
+        .whileTrue(new IntakeIn(m_intake, m_shoulder, m_shooter, m_ledUtil, m_driverController, m_operatorController));
     new JoystickButton(m_operatorController, Button.kLeftBumper.value)
         .whileTrue(new IntakeOut(m_intake, m_shoulder));
   }

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
 import frc.utils.LEDEffects;
 import frc.utils.LEDUtility;
@@ -20,6 +21,7 @@ import frc.utils.LEDUtility;
 public class IntakeIn extends Command {
   Shoulder shoulder;
   Intake intake;
+  Shooter shooter;
   LEDUtility ledUtil;
   XboxController driver;
   XboxController operator;
@@ -27,9 +29,10 @@ public class IntakeIn extends Command {
   int extraRuntime = 0;
 
   /** Creates a new IntakeIn. */
-  public IntakeIn(Intake m_intake, Shoulder m_shoulder, LEDUtility m_ledUtility, XboxController m_driverController, XboxController m_operatorController) {
+  public IntakeIn(Intake m_intake, Shoulder m_shoulder, Shooter m_shooter, LEDUtility m_ledUtility, XboxController m_driverController, XboxController m_operatorController) {
     shoulder = m_shoulder;
     intake = m_intake;
+    shooter = m_shooter;
     ledUtil = m_ledUtility;
     driver = m_driverController;
     operator = m_operatorController;
@@ -53,6 +56,7 @@ public class IntakeIn extends Command {
         intake.setIntakeSpeed(1);
         LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
       } else {
+        shooter.setIdle();
         intake.setBeltSpeed(0);
         intake.setIntakeSpeed(0); 
         intake.moveFlapperToPos(IntakeConstants.flapperHome);

@@ -37,6 +37,7 @@ public class Shooter extends SubsystemBase {
   GenericEntry shooterFF;
 
   Supplier<Boolean> hasNote;
+  boolean hadNote = false;
 
   double shooterCurSetpoint = 0;
 
@@ -99,13 +100,20 @@ public class Shooter extends SubsystemBase {
     return getShooterSpeed() == shooterCurSetpoint;
   }
 
+  public void setIdle() {
+    shooterCurSetpoint = ShooterConstants.idleSpeed;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    if (hasNote.get()) {
+    /*if (hasNote.get() && !hadNote) {
       shooterCurSetpoint = ShooterConstants.idleSpeed;
-    }
+      hadNote = true;
+    } else if (!hasNote.get() && hadNote) {
+      hadNote = false;
+    }*/
     setShooterSpeed(shooterCurSetpoint);
 
     shooterPos.setDouble(getShooterSpeed());
