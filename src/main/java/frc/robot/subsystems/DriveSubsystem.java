@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Arrays;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -240,5 +242,29 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_gyro.getRate(IMUAxis.kZ) * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  public SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] test = new SwerveModulePosition[] {
+          m_frontLeft.getPosition(),
+          m_frontRight.getPosition(),
+          m_rearLeft.getPosition(),
+          m_rearRight.getPosition()
+      };
+    return Arrays.stream(test).toArray(SwerveModulePosition[]::new);
+  }
+
+  public SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] test = new SwerveModuleState[] {
+          m_frontLeft.getState(),
+          m_frontRight.getState(),
+          m_rearLeft.getState(),
+          m_rearRight.getState()
+      };
+    return Arrays.stream(test).toArray(SwerveModuleState[]::new);
+  }
+
+  public Rotation2d newHeading() {
+    return Rotation2d.fromDegrees(this.getHeading());
   }
 }

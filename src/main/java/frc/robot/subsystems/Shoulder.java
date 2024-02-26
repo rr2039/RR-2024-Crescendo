@@ -35,6 +35,8 @@ public class Shoulder extends SubsystemBase {
   GenericEntry shoulderD;
   GenericEntry shoulderFF;
 
+  double shoulderCurSetpoint = ShoulderConstants.shoulderHome;
+
   /** Creates a new Shoulder. */
   public Shoulder() {
     leftShoulder = new CANSparkMax(ShoulderConstants.leftShoulderCanId, MotorType.kBrushless);
@@ -78,6 +80,10 @@ public class Shoulder extends SubsystemBase {
     return shoulderEnc.getPosition() == ShoulderConstants.shoulderHome;
   }
 
+  public void goHome() {
+    shoulderCurSetpoint = ShoulderConstants.shoulderHome;
+  }
+
   public void setShoulderSpeed(double speed) {
     rightShoulder.set(speed);
   }
@@ -86,9 +92,20 @@ public class Shoulder extends SubsystemBase {
     shoulderPID.setReference(degrees, ControlType.kPosition);
   }
 
+  public void setShoulderSetpoint(double setpoint) {
+    shoulderCurSetpoint = setpoint;
+  }
+
+  public double getShoulderSetpoint() {
+    return shoulderCurSetpoint;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    moveShoulderToPos(shoulderCurSetpoint);
+
     shoulderPos.setDouble(getShoulderPos());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       double tempP = shoulderP.getDouble(shoulderPID.getP(0));

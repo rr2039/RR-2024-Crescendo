@@ -16,6 +16,7 @@ import frc.robot.commands.ShooterFeed;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shoulder;
+import frc.utils.PoseEstimatorSubsystem;
 import frc.utils.LEDStrip;
 import frc.utils.LEDUtility;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,6 +35,7 @@ public class RobotContainer {
   private final Intake m_intake = new Intake();
   private final Shoulder m_shoulder = new Shoulder();
 
+  public PoseEstimatorSubsystem m_poseEst = new frc.utils.PoseEstimatorSubsystem(m_robotDrive::newHeading, m_robotDrive::getModulePositions, m_robotDrive::getModuleStates);
   public LEDUtility m_ledUtil = new LEDUtility(0);
 
   // The driver's controller

@@ -34,7 +34,7 @@ public class IntakeOut extends Command {
       intake.setBeltSpeed(-1);
       intake.setIntakeSpeed(-1);
     } else {
-      shoulder.moveShoulderToPos(ShoulderConstants.shoulderHome);
+      shoulder.goHome();
     }
   }
 

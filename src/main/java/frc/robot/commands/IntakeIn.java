@@ -62,7 +62,7 @@ public class IntakeIn extends Command {
         extraRuntime++;
       }
     } else {
-      shoulder.moveShoulderToPos(ShoulderConstants.shoulderHome);
+      shoulder.goHome();
     }
   }
 

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
@@ -34,14 +36,20 @@ public class Shooter extends SubsystemBase {
   GenericEntry shooterD;
   GenericEntry shooterFF;
 
+  Supplier<Boolean> hasNote;
+
+  double shooterCurSetpoint = 0;
+
   /** Creates a new Shooter. */
-  public Shooter() {
+  public Shooter(Supplier<Boolean> _hasNote) {
+    hasNote = _hasNote;
+
     rightShooter = new CANSparkMax(ShooterConstants.rightShooterCanId, MotorType.kBrushless);
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
 
     shooterEnc = rightShooter.getAbsoluteEncoder(Type.kDutyCycle);
     shooterEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
-    shooterPos = shooterTab.add("ShooterPos", getShooterPos()).getEntry();
+    shooterPos = shooterTab.add("ShooterPos", getShooterSpeed()).getEntry();
 
     rightShooter.restoreFactoryDefaults();
     leftShooter.restoreFactoryDefaults();
@@ -67,22 +75,40 @@ public class Shooter extends SubsystemBase {
     leftShooter.burnFlash();
   }
 
-  public double getShooterPos() {
-    return shooterEnc.getPosition();
+  public double getShooterSpeed() {
+    return shooterEnc.getVelocity();
   }
 
-  public void setShooterSpeed(double speed) {
+  public void setShooter(double speed) {
     rightShooter.set(speed);
   }
   
-  public void moveFlapperToPos(double velocity) {
+  public void setShooterSpeed(double velocity) {
     shooterPID.setReference(velocity, ControlType.kVelocity);
+  }
+
+  public void setShooterSetpoint(double velocity) {
+    shooterCurSetpoint = velocity;
+  }
+
+  public double getShooterSetpoint() {
+    return shooterCurSetpoint;
+  }
+
+  public boolean atSetpoint() {
+    return getShooterSpeed() == shooterCurSetpoint;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    shooterPos.setDouble(getShooterPos());
+
+    if (hasNote.get()) {
+      shooterCurSetpoint = ShooterConstants.idleSpeed;
+    }
+    setShooterSpeed(shooterCurSetpoint);
+
+    shooterPos.setDouble(getShooterSpeed());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       double tempP = shooterP.getDouble(shooterPID.getP(0));
       if (shooterPID.getP(0) != tempP) {

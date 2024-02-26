@@ -6,11 +6,17 @@ package frc.robot;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.util.Color;
+import static edu.wpi.first.math.util.Units.degreesToRadians;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -74,19 +80,21 @@ public final class Constants {
 
   public static final class ShooterConstants {
     // SPARK MAX CAN IDs
-    public static final int leftShooterCanId = 1;
-    public static final int rightShooterCanId = 2;
+    public static final int leftShooterCanId = 20;
+    public static final int rightShooterCanId = 21;
 
     public static final double kShooterP = 0;
     public static final double kShooterI = 0;
     public static final double kShooterD = 0;
     public static final double kShooterFF = 0;
+
+    public static final double idleSpeed = 500;
   }
 
   public static final class ShoulderConstants {
     //SPARK MAX CAN IDs
-    public static final int leftShoulderCanId = 3;
-    public static final int rightShoulderCanId = 4;
+    public static final int leftShoulderCanId = 22;
+    public static final int rightShoulderCanId = 23;
 
     public static final double shoulderHome = 60.0;
 
@@ -98,9 +106,9 @@ public final class Constants {
 
   public static final class IntakeConstants {
     //SPARK MAX CAN IDs
-    public static final int beltCanId = 5;
-    public static final int flapperCanId = 6;
-    public static final int intakeCanId = 7;
+    public static final int beltCanId = 24;
+    public static final int flapperCanId = 25;
+    public static final int intakeCanId = 26;
 
     public static final double flapperHome = 0;
     public static final double flapperGround = 45;
@@ -115,7 +123,7 @@ public final class Constants {
 
   public static final class FlipperConstants {
     //SPARK MAX CAN IDs
-    public static final int flipperCanId = 8;
+    public static final int flipperCanId = 27;
 
     public static final double kFlipperP = 0;
     public static final double kFlipperI = 0;
@@ -125,8 +133,8 @@ public final class Constants {
 
   public static final class ClimberConstants {
     //SPARK MAX CAN IDs
-    public static final int leftClimberCanId = 9;
-    public static final int rightClimberCanId = 10;
+    public static final int leftClimberCanId = 28;
+    public static final int rightClimberCanId = 29;
 
     public static final double kClimberP = 0;
     public static final double kClimberI = 0;
@@ -209,5 +217,23 @@ public final class Constants {
 
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
+  }
+
+  public static final class VisionConstants {
+    /** Physical location of the apriltag camera on the robot, relative to the center of the robot. */
+    public static final Transform3d APRILTAG_CAMERA_TO_ROBOT = new Transform3d(
+        new Translation3d(0.33655, -0.23495, 0.26035),
+        new Rotation3d(0.0, degreesToRadians(18.0), degreesToRadians(0.0)));
+
+    public static final double FIELD_LENGTH_METERS = 16.54175;
+    public static final double FIELD_WIDTH_METERS = 8.0137;
+
+    // Pose on the opposite side of the field. Use with `relativeTo` to flip a pose to the opposite alliance
+    public static final Pose2d FLIPPING_POSE = new Pose2d(
+        new Translation2d(FIELD_LENGTH_METERS, FIELD_WIDTH_METERS),
+        new Rotation2d(Math.PI));
+
+    /** Minimum target ambiguity. Targets with higher ambiguity will be discarded */
+    public static final double APRILTAG_AMBIGUITY_THRESHOLD = 0.2;
   }
 }
