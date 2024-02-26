@@ -60,8 +60,13 @@ public class IntakeIn extends Command {
         intake.setBeltSpeed(0);
         intake.setIntakeSpeed(0); 
         intake.moveFlapperToPos(IntakeConstants.flapperHome);
-        driver.setRumble(RumbleType.kBothRumble, 1);
-        operator.setRumble(RumbleType.kBothRumble, 1);
+        if (extraRuntime % 5 == 0) {
+          driver.setRumble(RumbleType.kBothRumble, 0);
+          operator.setRumble(RumbleType.kBothRumble, 0);
+        } else {
+          driver.setRumble(RumbleType.kBothRumble, 1);
+          operator.setRumble(RumbleType.kBothRumble, 1);
+        }
         LEDEffects.setFlashing(ledUtil.getStrip(0), LEDEffects.rrGreen, 10);
         extraRuntime++;
       }
