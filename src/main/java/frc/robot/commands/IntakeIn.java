@@ -53,8 +53,8 @@ public class IntakeIn extends Command {
       if (!intake.hasNote()) {
         intake.moveFlapperToPos(IntakeConstants.flapperGround);
         intake.setBeltSpeed(1);
-        intake.setIntakeSpeed(1);
-        LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
+        intake.setIntakeSpeed(0.5);
+        //LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
       } else {
         shooter.setIdle();
         intake.setBeltSpeed(0);
@@ -67,7 +67,7 @@ public class IntakeIn extends Command {
           driver.setRumble(RumbleType.kBothRumble, 1);
           operator.setRumble(RumbleType.kBothRumble, 1);
         }
-        LEDEffects.setFlashing(ledUtil.getStrip(0), LEDEffects.rrGreen, 10);
+        //LEDEffects.setFlashing(ledUtil.getStrip(0), LEDEffects.rrGreen, 10);
         extraRuntime++;
       }
     } else {
@@ -80,7 +80,7 @@ public class IntakeIn extends Command {
   public void end(boolean interrupted) {
     driver.setRumble(RumbleType.kBothRumble, 0);
     operator.setRumble(RumbleType.kBothRumble, 0);
-    LEDEffects.setSolidColor(ledUtil.getStrip(0), Color.kBlack);
+    //LEDEffects.setSolidColor(ledUtil.getStrip(0), Color.kBlack);
   }
 
   // Returns true when the command should end.

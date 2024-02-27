@@ -5,21 +5,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ShoulderConstants;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Shoulder;
+import frc.robot.subsystems.Climber;
 
-public class IntakeOut extends Command {
-  Shoulder shoulder;
-  Intake intake;
-
-  /** Creates a new IntakeOut. */
-  public IntakeOut(Intake m_intake, Shoulder m_shoulder) {
-    shoulder = m_shoulder;
-    intake = m_intake;
+public class Climb extends Command {
+  Climber climber;
+  boolean lift;
+  /** Creates a new Climb. */
+  public Climb(Climber m_climber, boolean m_lift) {
+    climber = m_climber;
+    lift = m_lift;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_intake, m_shoulder);
+    addRequirements(m_climber);
   }
 
   // Called when the command is initially scheduled.
@@ -29,21 +25,17 @@ public class IntakeOut extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shoulder.isHome()) {
-      intake.moveFlapperToPos(IntakeConstants.flapperGround);
-      intake.setBeltSpeed(-1);
-      intake.setIntakeSpeed(-0.5);
+    if (lift) {
+      climber.setClimberSpeed(0.5);
     } else {
-      shoulder.goHome();
+      climber.setClimberSpeed(-0.5);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.setBeltSpeed(0);
-    intake.setIntakeSpeed(0); 
-    intake.moveFlapperToPos(IntakeConstants.flapperHome);
+    climber.setClimberSpeed(0);
   }
 
   // Returns true when the command should end.

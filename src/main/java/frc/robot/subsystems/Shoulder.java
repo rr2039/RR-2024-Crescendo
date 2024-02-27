@@ -42,7 +42,7 @@ public class Shoulder extends SubsystemBase {
     leftShoulder = new CANSparkMax(ShoulderConstants.leftShoulderCanId, MotorType.kBrushless);
     rightShoulder = new CANSparkMax(ShoulderConstants.rightShoulderCanId, MotorType.kBrushless);
 
-    shoulderEnc = rightShoulder.getAbsoluteEncoder(Type.kDutyCycle);
+    shoulderEnc = leftShoulder.getAbsoluteEncoder(Type.kDutyCycle);
     shoulderEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
     shoulderPos = shoulderTab.add("ShoulderPos", getShoulderPos()).getEntry();
 
@@ -52,12 +52,12 @@ public class Shoulder extends SubsystemBase {
     rightShoulder.setSoftLimit(SoftLimitDirection.kForward, 0);
     rightShoulder.setSoftLimit(SoftLimitDirection.kReverse, -90);
 
-    leftShoulder.follow(rightShoulder, true);
+    rightShoulder.follow(leftShoulder, true);
 
     rightShoulder.setIdleMode(IdleMode.kBrake);
     leftShoulder.setIdleMode(IdleMode.kBrake);
 
-    shoulderPID = rightShoulder.getPIDController();
+    shoulderPID = leftShoulder.getPIDController();
     shoulderPID.setFeedbackDevice(shoulderEnc);
     shoulderPID.setP(ShoulderConstants.kShoulderP, 0);
     shoulderP = shoulderTab.add("ShoulderP", shoulderPID.getP(0)).getEntry();
@@ -77,8 +77,9 @@ public class Shoulder extends SubsystemBase {
   }
 
   public boolean isHome() {
-    return shoulderEnc.getPosition() == ShoulderConstants.shoulderHome;
-  }
+    //return shoulderEnc.getPosition() == ShoulderConstants.shoulderHome;
+    return true;
+ }
 
   public void goHome() {
     shoulderCurSetpoint = ShoulderConstants.shoulderHome;

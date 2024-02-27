@@ -35,23 +35,25 @@ public class Intake extends SubsystemBase {
   ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
   private ColorMatch m_colorMatcher = new ColorMatch();
 
-  ShuffleboardTab flapperTab = Shuffleboard.getTab("Flapper");
+  ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake");
   GenericEntry flapperPos;
   GenericEntry flapperSetpoint;
   GenericEntry flapperP;
   GenericEntry flapperI;
   GenericEntry flapperD;
   GenericEntry flapperFF;
+  GenericEntry hasNote;
 
   /** Creates a new Intake. */
   public Intake() {
     belt = new CANSparkMax(IntakeConstants.beltCanId, MotorType.kBrushless);
     flapper = new CANSparkMax(IntakeConstants.flapperCanId, MotorType.kBrushless);
     intake = new CANSparkMax(IntakeConstants.intakeCanId, MotorType.kBrushless);
+    intake.setInverted(true);
 
     flapperEnc = flapper.getAbsoluteEncoder(Type.kDutyCycle);
     flapperEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
-    flapperPos = flapperTab.add("FlapperPos", getFlapperPos()).getEntry();
+    flapperPos = intakeTab.add("FlapperPos", getFlapperPos()).getEntry();
 
     flapper.restoreFactoryDefaults();
 
@@ -64,17 +66,18 @@ public class Intake extends SubsystemBase {
     flapperPID.setFeedbackDevice(flapperEnc);
     
     flapperPID.setP(IntakeConstants.kFlapperP);
-    flapperP = flapperTab.add("FlapperP", flapperPID.getP(0)).getEntry();
+    flapperP = intakeTab.add("FlapperP", flapperPID.getP(0)).getEntry();
     flapperPID.setI(IntakeConstants.kFlapperI);
-    flapperI = flapperTab.add("FlapperI", flapperPID.getP(0)).getEntry();
+    flapperI = intakeTab.add("FlapperI", flapperPID.getP(0)).getEntry();
     flapperPID.setD(IntakeConstants.kFlapperD);
-    flapperD = flapperTab.add("FlapperD", flapperPID.getP(0)).getEntry();
+    flapperD = intakeTab.add("FlapperD", flapperPID.getP(0)).getEntry();
     flapperPID.setFF(IntakeConstants.kFlapperFF);
-    flapperFF = flapperTab.add("FlapperFF", flapperPID.getP(0)).getEntry();
+    flapperFF = intakeTab.add("FlapperFF", flapperPID.getP(0)).getEntry();
 
     flapper.burnFlash();
 
     m_colorMatcher.addColorMatch(IntakeConstants.noteColor);
+    hasNote = intakeTab.add("Has Note", hasNote()).getEntry();
   }
 
   public boolean hasNote() {
@@ -105,6 +108,7 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     flapperPos.setDouble(getFlapperPos());
+    hasNote.setBoolean(hasNote());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       double tempP = flapperP.getDouble(flapperPID.getP(0));
       if (flapperPID.getP(0) != tempP) {

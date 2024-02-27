@@ -96,7 +96,7 @@ public final class Constants {
     public static final int leftShoulderCanId = 22;
     public static final int rightShoulderCanId = 23;
 
-    public static final double shoulderHome = 60.0;
+    public static final double shoulderHome = 0.6;
 
     public static final double kShoulderP = 0;
     public static final double kShoulderI = 0;
@@ -113,7 +113,7 @@ public final class Constants {
     public static final double flapperHome = 0;
     public static final double flapperGround = 45;
 
-    public static final Color noteColor = new Color(0.143, 0.427, 0.429);
+    public static final Color noteColor = new Color(0.949, 0.322, 0.267);
 
     public static final double kFlapperP = 0;
     public static final double kFlapperI = 0;
@@ -175,7 +175,8 @@ public final class Constants {
     public static final double kDrivingP = 0.04;
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0;
-    public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
+    //public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
+    public static final double kDrivingFF = 0;
     public static final double kDrivingMinOutput = -1;
     public static final double kDrivingMaxOutput = 1;
 

@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.Climb;
 import frc.robot.commands.IntakeIn;
 import frc.robot.commands.IntakeOut;
 import frc.robot.commands.ShooterFeed;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -23,6 +25,7 @@ import frc.utils.LEDUtility;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -36,8 +39,9 @@ public class RobotContainer {
   private final Intake m_intake = new Intake();
   private final Shoulder m_shoulder = new Shoulder();
   private final Shooter m_shooter = new Shooter(m_intake::hasNote);
+  private final Climber m_climber = new Climber();
 
-  public PoseEstimatorSubsystem m_poseEst = new frc.utils.PoseEstimatorSubsystem(m_robotDrive::newHeading, m_robotDrive::getModulePositions, m_robotDrive::getModuleStates);
+  //public PoseEstimatorSubsystem m_poseEst = new frc.utils.PoseEstimatorSubsystem(m_robotDrive::newHeading, m_robotDrive::getModulePositions, m_robotDrive::getModuleStates);
   public LEDUtility m_ledUtil = new LEDUtility(0);
 
   // The driver's controller
@@ -51,7 +55,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_ledUtil.addStrip(new LEDStrip(0, 8, false)); 
+    m_ledUtil.addStrip(new LEDStrip(1, 8, false)); 
 
     // Configure the button bindings
     configureButtonBindings();
@@ -85,7 +89,7 @@ public class RobotContainer {
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
-    new JoystickButton(m_operatorController, Button.kRightBumper.value)
+    new JoystickButton(m_driverController, Button.kRightBumper.value)
         .whileTrue(new ShooterFeed(m_intake));
 
     // OPERATOR CONTROLLER
@@ -93,6 +97,10 @@ public class RobotContainer {
         .whileTrue(new IntakeIn(m_intake, m_shoulder, m_shooter, m_ledUtil, m_driverController, m_operatorController));
     new JoystickButton(m_operatorController, Button.kLeftBumper.value)
         .whileTrue(new IntakeOut(m_intake, m_shoulder));
+    new POVButton(m_operatorController, 180)
+        .whileTrue(new Climb(m_climber, true));
+    new POVButton(m_operatorController, 0)
+        .whileTrue(new Climb(m_climber, false));
   }
 
   /**

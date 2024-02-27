@@ -17,7 +17,11 @@ public class LEDUtility extends SubsystemBase {
 
   /** Creates a new LEDUtility. */
   public LEDUtility(int _port) {
-    addressableLED = new AddressableLED(_port);
+    try {
+      addressableLED = new AddressableLED(_port);
+    } finally {
+      System.out.println("No LEDs");
+    }
   }
 
   public void addStrip(LEDStrip _strip) {
@@ -37,11 +41,11 @@ public class LEDUtility extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    AddressableLEDBuffer filler = new AddressableLEDBuffer(overallLength);
+    /*AddressableLEDBuffer filler = new AddressableLEDBuffer(overallLength);
     ledStrips.forEach(strip -> {
       for(int i = strip.getStart()-1; i <= strip.getStop()-1; i++) {
         filler.setLED(i, strip.getIndex(i));
       }
-    });
+    });*/
   }
 }
