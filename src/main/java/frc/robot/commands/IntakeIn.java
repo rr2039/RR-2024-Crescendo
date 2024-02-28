@@ -80,6 +80,11 @@ public class IntakeIn extends Command {
   public void end(boolean interrupted) {
     driver.setRumble(RumbleType.kBothRumble, 0);
     operator.setRumble(RumbleType.kBothRumble, 0);
+    if (interrupted) {
+      intake.setBeltSpeed(0);
+      intake.setIntakeSpeed(0); 
+      intake.moveFlapperToPos(IntakeConstants.flapperHome);
+    }
     //LEDEffects.setSolidColor(ledUtil.getStrip(0), Color.kBlack);
   }
 

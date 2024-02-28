@@ -75,7 +75,7 @@ public final class Constants {
     public static final int kFrontRightTurningCanId = 16;
     public static final int kRearRightTurningCanId = 18;
 
-    public static final boolean kGyroReversed = false;
+    public static final boolean kGyroReversed = true;
   }
 
   public static final class ShooterConstants {
@@ -113,7 +113,7 @@ public final class Constants {
     public static final double flapperHome = 0;
     public static final double flapperGround = 45;
 
-    public static final Color noteColor = new Color(0.949, 0.322, 0.267);
+    public static final Color noteColor = new Color("#8B5D15");
 
     public static final double kFlapperP = 0;
     public static final double kFlapperI = 0;
@@ -164,7 +164,7 @@ public final class Constants {
     public static final double kDrivingEncoderPositionFactor = (kWheelDiameterMeters * Math.PI)
         / kDrivingMotorReduction; // meters
     public static final double kDrivingEncoderVelocityFactor = ((kWheelDiameterMeters * Math.PI)
-        / kDrivingMotorReduction) / 60.0; // meters per second
+        / kDrivingMotorReduction);// / 60.0; // meters per second
 
     public static final double kTurningEncoderPositionFactor = (2 * Math.PI); // radians
     public static final double kTurningEncoderVelocityFactor = (2 * Math.PI) / 60.0; // radians per second
@@ -172,11 +172,10 @@ public final class Constants {
     public static final double kTurningEncoderPositionPIDMinInput = 0; // radians
     public static final double kTurningEncoderPositionPIDMaxInput = kTurningEncoderPositionFactor; // radians
 
-    public static final double kDrivingP = 0.04;
+    public static final double kDrivingP = 0.04/2;
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0;
-    //public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
-    public static final double kDrivingFF = 0;
+    public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
     public static final double kDrivingMinOutput = -1;
     public static final double kDrivingMaxOutput = 1;
 
@@ -196,7 +195,7 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.05;
+    public static final double kDriveDeadband = 0.07;
     public static final int kOperatorControllerPort = 1;
     public static final double kOperatorDeadband = 0.05;
   }
@@ -217,7 +216,7 @@ public final class Constants {
   }
 
   public static final class NeoMotorConstants {
-    public static final double kFreeSpeedRpm = 5676;
+    public static final double kFreeSpeedRpm = 6000;
   }
 
   public static final class VisionConstants {

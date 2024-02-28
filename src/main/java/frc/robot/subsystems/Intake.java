@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
@@ -19,6 +20,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
@@ -43,6 +45,7 @@ public class Intake extends SubsystemBase {
   GenericEntry flapperD;
   GenericEntry flapperFF;
   GenericEntry hasNote;
+  GenericEntry colorSensorRead;
 
   /** Creates a new Intake. */
   public Intake() {
@@ -61,6 +64,8 @@ public class Intake extends SubsystemBase {
     flapper.setSoftLimit(SoftLimitDirection.kReverse, -90);
 
     flapper.setIdleMode(IdleMode.kBrake);
+    intake.setIdleMode(IdleMode.kBrake);
+    belt.setIdleMode(IdleMode.kBrake);
 
     flapperPID = flapper.getPIDController();
     flapperPID.setFeedbackDevice(flapperEnc);
@@ -75,13 +80,31 @@ public class Intake extends SubsystemBase {
     flapperFF = intakeTab.add("FlapperFF", flapperPID.getP(0)).getEntry();
 
     flapper.burnFlash();
+    belt.burnFlash();
+    intake.burnFlash();
 
     m_colorMatcher.addColorMatch(IntakeConstants.noteColor);
+    m_colorMatcher.addColorMatch(new Color("#7E6619"));
+    m_colorMatcher.addColorMatch(new Color("#876116"));
+    m_colorMatcher.addColorMatch(new Color("#876017"));
+    m_colorMatcher.addColorMatch(new Color("#856117"));
+    m_colorMatcher.addColorMatch(new Color("#8F5C13"));
+    m_colorMatcher.addColorMatch(new Color("#925913"));
+    m_colorMatcher.addColorMatch(new Color("#915A13"));
+    m_colorMatcher.addColorMatch(new Color("#786A1C"));
+    m_colorMatcher.addColorMatch(new Color("#7F6619"));
+    m_colorMatcher.addColorMatch(new Color("#895F16"));
     hasNote = intakeTab.add("Has Note", hasNote()).getEntry();
+    colorSensorRead = intakeTab.add("Color Sensed", colorSensor.getColor().toString()).getEntry();
   }
 
   public boolean hasNote() {
-    return m_colorMatcher.matchClosestColor(colorSensor.getColor()).color == IntakeConstants.noteColor;
+    ColorMatchResult sensed = m_colorMatcher.matchColor(colorSensor.getColor());
+    if (sensed != null) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public double getFlapperPos() {
@@ -109,6 +132,7 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
     flapperPos.setDouble(getFlapperPos());
     hasNote.setBoolean(hasNote());
+    colorSensorRead.setString(colorSensor.getColor().toString());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       double tempP = flapperP.getDouble(flapperPID.getP(0));
       if (flapperPID.getP(0) != tempP) {
