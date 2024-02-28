@@ -94,7 +94,7 @@ public class RobotContainer {
 
     // OPERATOR CONTROLLER
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
-        .onTrue(new IntakeIn(m_intake, m_shoulder, m_shooter, m_ledUtil, m_driverController, m_operatorController));
+        .whileTrue(new IntakeIn(m_intake, m_shoulder, m_shooter, m_ledUtil, m_driverController, m_operatorController));
     new JoystickButton(m_operatorController, Button.kLeftBumper.value)
         .whileTrue(new IntakeOut(m_intake, m_shoulder));
     new POVButton(m_operatorController, 180)
