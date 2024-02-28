@@ -17,7 +17,7 @@ import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
+//import com.revrobotics.RelativeEncoder;
 
 import frc.robot.Constants.ModuleConstants;
 
@@ -117,7 +117,7 @@ public class MAXSwerveModule {
   }
 
   public double getDriveVelocity() {
-    return (m_drivingTalonFX.getVelocity().getValueAsDouble() * 60) * ModuleConstants.kDrivingEncoderVelocityFactor;
+    return (m_drivingTalonFX.getVelocity().getValueAsDouble() * 10) * ModuleConstants.kDrivingEncoderVelocityFactor;
   }
 
   private double getDrivePosition() {
