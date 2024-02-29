@@ -34,6 +34,8 @@ public class Flipper extends SubsystemBase {
   GenericEntry flipperD;
   GenericEntry flipperFF;
 
+  double flipperCurSetpoint = FlipperConstants.flipperHome;
+
   /** Creates a new Flipper. */
   public Flipper() {
     flipper = new CANSparkMax(FlipperConstants.flipperCanId, MotorType.kBrushless);
@@ -61,6 +63,8 @@ public class Flipper extends SubsystemBase {
     flipperPID.setFF(FlipperConstants.kFlipperFF);
     flipperFF = flipperTab.add("FlipperFF", flipperPID.getP(0)).getEntry();
 
+    flipperSetpoint = flipperTab.add("FlipperSetpoint", flipperCurSetpoint).getEntry();
+
     flipper.burnFlash();
   }
 
@@ -76,11 +80,20 @@ public class Flipper extends SubsystemBase {
     flipperPID.setReference(degrees, ControlType.kPosition);
   }
 
+  public void setFlipperSetpoint(double degrees) {
+    flipperCurSetpoint = degrees;
+  }
+
+  public double getFlipperSetpoint() {
+    return flipperCurSetpoint;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     flipperPos.setDouble(getFlipperPos());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
+      flipperSetpoint.setDouble(flipperCurSetpoint);
       double tempP = flipperP.getDouble(flipperPID.getP(0));
       if (flipperPID.getP(0) != tempP) {
         flipperPID.setP(tempP, 0);
@@ -96,6 +109,10 @@ public class Flipper extends SubsystemBase {
       double tempFF = flipperFF.getDouble(flipperPID.getFF(0));
       if (flipperPID.getFF(0) != tempFF) {
         flipperPID.setFF(tempFF, 0);
+      }
+      double tempSetpoint = flipperSetpoint.getDouble (flipperCurSetpoint);
+      if (flipperCurSetpoint != tempSetpoint) {
+        setFlipperSetpoint(tempSetpoint);
       }
     }
   }

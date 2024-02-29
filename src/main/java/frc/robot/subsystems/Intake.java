@@ -47,6 +47,8 @@ public class Intake extends SubsystemBase {
   GenericEntry hasNote;
   GenericEntry colorSensorRead;
 
+  double flapperCurSetpoint =  IntakeConstants.flapperHome;
+
   /** Creates a new Intake. */
   public Intake() {
     belt = new CANSparkMax(IntakeConstants.beltCanId, MotorType.kBrushless);
@@ -78,6 +80,8 @@ public class Intake extends SubsystemBase {
     flapperD = intakeTab.add("FlapperD", flapperPID.getP(0)).getEntry();
     flapperPID.setFF(IntakeConstants.kFlapperFF);
     flapperFF = intakeTab.add("FlapperFF", flapperPID.getP(0)).getEntry();
+
+    flapperSetpoint = intakeTab.add("FlapperSetpoint", flapperCurSetpoint).getEntry();
 
     flapper.burnFlash();
     belt.burnFlash();
@@ -126,6 +130,14 @@ public class Intake extends SubsystemBase {
   public void moveFlapperToPos(double degrees) {
     flapperPID.setReference(degrees, ControlType.kPosition);
   }
+  
+  public void setFlapperSetpoint(double degrees) {
+    flapperCurSetpoint = degrees;
+  }
+
+  public double getFlapperSetpoint() {
+    return flapperCurSetpoint;
+  }
 
   @Override
   public void periodic() {
@@ -134,6 +146,7 @@ public class Intake extends SubsystemBase {
     hasNote.setBoolean(hasNote());
     colorSensorRead.setString(colorSensor.getColor().toString());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
+      flapperSetpoint.setDouble(flapperCurSetpoint);
       double tempP = flapperP.getDouble(flapperPID.getP(0));
       if (flapperPID.getP(0) != tempP) {
         flapperPID.setP(tempP, 0);
@@ -149,6 +162,10 @@ public class Intake extends SubsystemBase {
       double tempFF = flapperFF.getDouble(flapperPID.getFF(0));
       if (flapperPID.getFF(0) != tempFF) {
         flapperPID.setFF(tempFF, 0);
+      }
+      double tempSetpoint = flapperSetpoint.getDouble (flapperCurSetpoint);
+      if (flapperCurSetpoint != tempSetpoint) {
+        setFlapperSetpoint(tempSetpoint);
       }
     }
   }

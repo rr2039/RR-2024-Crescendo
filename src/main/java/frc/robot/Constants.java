@@ -89,6 +89,10 @@ public final class Constants {
     public static final double kShooterFF = 0;
 
     public static final double idleSpeed = 500;
+
+    public static final double[][] shooterData = {
+      {0,0}
+    };
   }
 
   public static final class ShoulderConstants {
@@ -129,6 +133,8 @@ public final class Constants {
     public static final double kFlipperI = 0;
     public static final double kFlipperD = 0;
     public static final double kFlipperFF = 0;
+
+    public static final double flipperHome = 0;
   }
 
   public static final class ClimberConstants {

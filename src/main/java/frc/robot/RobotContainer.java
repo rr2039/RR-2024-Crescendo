@@ -91,6 +91,8 @@ public class RobotContainer {
             m_robotDrive));
     new JoystickButton(m_driverController, Button.kRightBumper.value)
         .whileTrue(new ShooterFeed(m_intake));
+    new JoystickButton(m_driverController, Button.kB.value)
+        .whileTrue(new RunCommand(() -> m_robotDrive.zeroHeading()));
 
     // OPERATOR CONTROLLER
     new JoystickButton(m_operatorController, Button.kRightBumper.value)

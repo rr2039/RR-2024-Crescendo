@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
+import frc.utils.LinearInterpolator;
 
 public class Shooter extends SubsystemBase {
   
@@ -41,6 +42,8 @@ public class Shooter extends SubsystemBase {
 
   double shooterCurSetpoint = 0;
 
+  private LinearInterpolator interpolator = new LinearInterpolator(ShooterConstants.shooterData);
+
   /** Creates a new Shooter. */
   public Shooter(Supplier<Boolean> _hasNote) {
     hasNote = _hasNote;
@@ -49,7 +52,7 @@ public class Shooter extends SubsystemBase {
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
 
     shooterEnc = rightShooter.getAbsoluteEncoder(Type.kDutyCycle);
-    shooterEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
+    shooterEnc.setPositionConversionFactor(2); //TODO: CALCULATE CONVERSION FACTOR
     shooterPos = shooterTab.add("ShooterPos", getShooterSpeed()).getEntry();
 
     rightShooter.restoreFactoryDefaults();
@@ -71,6 +74,8 @@ public class Shooter extends SubsystemBase {
     shooterD = shooterTab.add("ShooterD", shooterPID.getP(0)).getEntry();
     shooterPID.setFF(ShooterConstants.kShooterFF);
     shooterFF = shooterTab.add("ShooterFF", shooterPID.getP(0)).getEntry();
+
+    shooterSetpoint = shooterTab.add("ShooterSetpoint", shooterCurSetpoint).getEntry();
 
     rightShooter.burnFlash();
     leftShooter.burnFlash();
@@ -103,6 +108,9 @@ public class Shooter extends SubsystemBase {
   public void setIdle() {
     shooterCurSetpoint = ShooterConstants.idleSpeed;
   }
+  public double calculateAngleFromDistance(double distance) {
+    return interpolator.getInterpolatedValue(distance);
+  }
 
   @Override
   public void periodic() {
@@ -118,6 +126,7 @@ public class Shooter extends SubsystemBase {
 
     shooterPos.setDouble(getShooterSpeed());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
+      shooterSetpoint.setDouble(shooterCurSetpoint);
       double tempP = shooterP.getDouble(shooterPID.getP(0));
       if (shooterPID.getP(0) != tempP) {
         shooterPID.setP(tempP, 0);
@@ -133,6 +142,10 @@ public class Shooter extends SubsystemBase {
       double tempFF = shooterFF.getDouble(shooterPID.getFF(0));
       if (shooterPID.getFF(0) != tempFF) {
         shooterPID.setFF(tempFF, 0);
+      }
+      double tempSetpoint = shooterSetpoint.getDouble(shooterCurSetpoint);
+      if (shooterCurSetpoint != tempSetpoint) {
+        setShooterSetpoint(tempSetpoint);
       }
     }
   }

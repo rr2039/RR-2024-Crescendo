@@ -67,6 +67,8 @@ public class Shoulder extends SubsystemBase {
     shoulderD = shoulderTab.add("ShoulderD", shoulderPID.getD(0)).getEntry();
     shoulderPID.setFF(ShoulderConstants.kShoulderFF, 0);
     shoulderFF = shoulderTab.add("ShoulderFF", shoulderPID.getFF(0)).getEntry();
+    
+    shoulderSetpoint = shoulderTab.add("ShoulderSetpoint", shoulderCurSetpoint).getEntry();
 
     rightShoulder.burnFlash();
     leftShoulder.burnFlash();
@@ -113,6 +115,7 @@ public class Shoulder extends SubsystemBase {
 
     shoulderPos.setDouble(getShoulderPos());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
+      shoulderSetpoint.setDouble(shoulderCurSetpoint);
       double tempP = shoulderP.getDouble(shoulderPID.getP(0));
       if (shoulderPID.getP(0) != tempP) {
         shoulderPID.setP(tempP, 0);
@@ -128,6 +131,10 @@ public class Shoulder extends SubsystemBase {
       double tempFF = shoulderFF.getDouble(shoulderPID.getFF(0));
       if (shoulderPID.getFF(0) != tempFF) {
         shoulderPID.setFF(tempFF, 0);
+      }
+      double tempSetpoint = shoulderSetpoint.getDouble (shoulderCurSetpoint);
+      if (shoulderCurSetpoint != tempSetpoint) {
+        setShoulderSetpoint(tempSetpoint);
       }
     }
   }
