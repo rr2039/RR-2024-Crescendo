@@ -5,21 +5,15 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ShoulderConstants;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Shoulder;
+import frc.robot.subsystems.Shooter;
 
-public class IntakeOut extends Command {
-  Shoulder shoulder;
-  Intake intake;
-
-  /** Creates a new IntakeOut. */
-  public IntakeOut(Intake m_intake, Shoulder m_shoulder) {
-    shoulder = m_shoulder;
-    intake = m_intake;
+public class ShooterOn extends Command {
+  Shooter shooter;
+  /** Creates a new ShooterOn. */
+  public ShooterOn(Shooter m_shooter) {
+    shooter = m_shooter;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_intake, m_shoulder);
+    addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
@@ -29,22 +23,16 @@ public class IntakeOut extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shoulder.isHome()) {
-      intake.moveFlapperToPos(IntakeConstants.flapperGround);
-      intake.setBeltSpeed(-0.25);
-      intake.setIntakeSpeed(-0.75);
-    } else {
-      shoulder.goHome();
-    }
+    //shooter.setShooterSetpoint(1500);
+    shooter.setShooter(0.35);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.setBeltSpeed(0);
-    intake.setIntakeSpeed(0); 
-    intake.moveFlapperToPos(IntakeConstants.flapperHome);
-  }
+    //shooter.setShooterSetpoint(500);
+    shooter.setShooterSetpoint(0);
+ }
 
   // Returns true when the command should end.
   @Override

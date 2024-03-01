@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.MountPoseConfigs;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -14,6 +16,8 @@ import frc.robot.commands.Climb;
 import frc.robot.commands.IntakeIn;
 import frc.robot.commands.IntakeOut;
 import frc.robot.commands.ShooterFeed;
+import frc.robot.commands.ShooterOn;
+import frc.robot.commands.ShoulderSetPos;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
@@ -37,11 +41,11 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Intake m_intake = new Intake();
-  private final Shoulder m_shoulder = new Shoulder();
-  private final Shooter m_shooter = new Shooter(m_intake::hasNote);
+  public PoseEstimatorSubsystem m_poseEst = new frc.utils.PoseEstimatorSubsystem(m_robotDrive::newHeading, m_robotDrive::getModulePositions, m_robotDrive::getModuleStates);
+  private final Shoulder m_shoulder = new Shoulder(m_poseEst);
+  private final Shooter m_shooter = new Shooter(m_intake::hasNote, m_poseEst);
   private final Climber m_climber = new Climber();
 
-  //public PoseEstimatorSubsystem m_poseEst = new frc.utils.PoseEstimatorSubsystem(m_robotDrive::newHeading, m_robotDrive::getModulePositions, m_robotDrive::getModuleStates);
   public LEDUtility m_ledUtil = new LEDUtility(0);
 
   // The driver's controller
@@ -66,9 +70,9 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(-m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(-m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
+                Math.pow(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband), 3),
+                Math.pow(MathUtil.applyDeadband(-m_driverController.getRawAxis(1), OIConstants.kDriveDeadband), 3),
+                Math.pow(MathUtil.applyDeadband(-m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 3),
                 true, false),
             m_robotDrive));
   }
@@ -103,6 +107,14 @@ public class RobotContainer {
         .whileTrue(new Climb(m_climber, true));
     new POVButton(m_operatorController, 0)
         .whileTrue(new Climb(m_climber, false));
+    new POVButton(m_operatorController, 270)
+        .whileTrue(new ShooterOn(m_shooter));
+    new JoystickButton(m_operatorController, Button.kY.value)
+        .onTrue(new ShoulderSetPos(m_shoulder, true));
+    new JoystickButton(m_operatorController, Button.kA.value)
+        .onTrue(new ShoulderSetPos(m_shoulder, false));
+    new JoystickButton(m_operatorController, Button.kX.value)
+        .onTrue(new RunCommand(() -> m_shoulder.setShoulderSetpoint(35), m_shoulder));
   }
 
   /**

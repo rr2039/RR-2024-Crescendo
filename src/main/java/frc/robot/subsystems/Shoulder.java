@@ -9,16 +9,25 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+
+import org.photonvision.PhotonUtils;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShoulderConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.utils.LinearInterpolator;
+import frc.utils.PoseEstimatorSubsystem;
 
 public class Shoulder extends SubsystemBase {
 
@@ -37,20 +46,34 @@ public class Shoulder extends SubsystemBase {
 
   double shoulderCurSetpoint = ShoulderConstants.shoulderHome;
 
+  PoseEstimatorSubsystem poseEst;
+
+  private LinearInterpolator interpolator = new LinearInterpolator(ShoulderConstants.shoulderData);
+
+  SlewRateLimiter shoulderSlew = new SlewRateLimiter(60);
+
+  ArmFeedforward feedforward;
+
   /** Creates a new Shoulder. */
-  public Shoulder() {
+  public Shoulder(PoseEstimatorSubsystem m_poseEst) {
+    poseEst = m_poseEst;
+
+    feedforward = new ArmFeedforward(0, 0.75, 0, 0);
+
     leftShoulder = new CANSparkMax(ShoulderConstants.leftShoulderCanId, MotorType.kBrushless);
     rightShoulder = new CANSparkMax(ShoulderConstants.rightShoulderCanId, MotorType.kBrushless);
-
-    shoulderEnc = leftShoulder.getAbsoluteEncoder(Type.kDutyCycle);
-    shoulderEnc.setPositionConversionFactor(2.6); //TODO: CALCULATE CONVERSION FACTOR
-    shoulderPos = shoulderTab.add("ShoulderPos", getShoulderPos()).getEntry();
 
     rightShoulder.restoreFactoryDefaults();
     leftShoulder.restoreFactoryDefaults();
 
-    rightShoulder.setSoftLimit(SoftLimitDirection.kForward, 0);
-    rightShoulder.setSoftLimit(SoftLimitDirection.kReverse, -90);
+    shoulderEnc = leftShoulder.getAbsoluteEncoder(Type.kDutyCycle);
+    shoulderEnc.setInverted(true);
+    shoulderEnc.setPositionConversionFactor(123.71);
+    shoulderEnc.setVelocityConversionFactor(1);
+    shoulderPos = shoulderTab.add("ShoulderPos", getShoulderPos()).getEntry();
+
+    leftShoulder.setSoftLimit(SoftLimitDirection.kForward, 33);
+    leftShoulder.setSoftLimit(SoftLimitDirection.kReverse, 112);
 
     rightShoulder.follow(leftShoulder, true);
 
@@ -79,8 +102,7 @@ public class Shoulder extends SubsystemBase {
   }
 
   public boolean isHome() {
-    //return shoulderEnc.getPosition() == ShoulderConstants.shoulderHome;
-    return true;
+    return ShoulderConstants.shoulderHome - 2 <= shoulderEnc.getPosition() && shoulderEnc.getPosition() <= ShoulderConstants.shoulderHome + 1 ;
  }
 
   public void goHome() {
@@ -92,7 +114,8 @@ public class Shoulder extends SubsystemBase {
   }
 
   public void moveShoulderToPos(double degrees) {
-    shoulderPID.setReference(degrees, ControlType.kPosition);
+    shoulderPID.setReference(shoulderSlew.calculate(degrees), ControlType.kPosition);
+    //shoulderPID.setReference(degrees, ControlType.kPosition);
   }
 
   public void setShoulderSetpoint(double setpoint) {
@@ -107,11 +130,24 @@ public class Shoulder extends SubsystemBase {
     return getShoulderPos() == shoulderCurSetpoint;
   }
 
+  public double calculateAngleFromDistance(double distance) {
+    return interpolator.getInterpolatedValue(distance);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
     moveShoulderToPos(shoulderCurSetpoint);
+
+    /*if (isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+      double range = PhotonUtils.calculateDistanceToTargetMeters(
+                      VisionConstants.CAMERA_HEIGHT_METERS,
+                      VisionConstants.TARGET_HEIGHT_METERS,
+                      VisionConstants.CAMERA_PITCH_RADIANS,
+                      Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
+      setShoulderSetpoint(calculateAngleFromDistance(range));
+    }*/
 
     shoulderPos.setDouble(getShoulderPos());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
@@ -132,10 +168,14 @@ public class Shoulder extends SubsystemBase {
       if (shoulderPID.getFF(0) != tempFF) {
         shoulderPID.setFF(tempFF, 0);
       }
-      double tempSetpoint = shoulderSetpoint.getDouble (shoulderCurSetpoint);
+      double tempSetpoint = shoulderSetpoint.getDouble(shoulderCurSetpoint);
       if (shoulderCurSetpoint != tempSetpoint) {
         setShoulderSetpoint(tempSetpoint);
       }
     }
+  }
+
+  private boolean isSpeakerTag(double tag) {
+    return (tag == 7 || tag == 8 || tag == 3 || tag == 4);
   }
 }

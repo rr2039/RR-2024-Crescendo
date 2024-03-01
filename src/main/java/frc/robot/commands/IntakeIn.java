@@ -52,11 +52,11 @@ public class IntakeIn extends Command {
     if (shoulder.isHome()) {
       if (!intake.hasNote()) {
         intake.moveFlapperToPos(IntakeConstants.flapperGround);
-        intake.setBeltSpeed(1);
-        intake.setIntakeSpeed(0.5);
+        intake.setBeltSpeed(0.25);
+        intake.setIntakeSpeed(0.75);
         //LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
       } else {
-        shooter.setIdle();
+        //shooter.setIdle();
         intake.setBeltSpeed(0);
         intake.setIntakeSpeed(0); 
         intake.moveFlapperToPos(IntakeConstants.flapperHome);

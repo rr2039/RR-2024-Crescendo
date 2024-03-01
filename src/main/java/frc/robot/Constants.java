@@ -83,7 +83,7 @@ public final class Constants {
     public static final int leftShooterCanId = 20;
     public static final int rightShooterCanId = 21;
 
-    public static final double kShooterP = 0;
+    public static final double kShooterP = 0.0001;
     public static final double kShooterI = 0;
     public static final double kShooterD = 0;
     public static final double kShooterFF = 0;
@@ -100,12 +100,16 @@ public final class Constants {
     public static final int leftShoulderCanId = 22;
     public static final int rightShoulderCanId = 23;
 
-    public static final double shoulderHome = 0.6;
+    public static final double shoulderHome = 75;
 
-    public static final double kShoulderP = 0;
+    public static final double kShoulderP = 0.05;
     public static final double kShoulderI = 0;
     public static final double kShoulderD = 0;
     public static final double kShoulderFF = 0;
+
+    public static final double[][] shoulderData = {
+      {0,0}
+    };
   }
 
   public static final class IntakeConstants {
@@ -114,12 +118,12 @@ public final class Constants {
     public static final int flapperCanId = 25;
     public static final int intakeCanId = 26;
 
-    public static final double flapperHome = 0;
-    public static final double flapperGround = 45;
+    public static final double flapperHome = 24;
+    public static final double flapperGround = 60;
 
     public static final Color noteColor = new Color("#8B5D15");
 
-    public static final double kFlapperP = 0;
+    public static final double kFlapperP = 0.01;
     public static final double kFlapperI = 0;
     public static final double kFlapperD = 0;
     public static final double kFlapperFF = 0;
@@ -226,6 +230,9 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
+    public static final double CAMERA_HEIGHT_METERS = 0;
+    public static final double CAMERA_PITCH_RADIANS = degreesToRadians(0);
+    public static final double TARGET_HEIGHT_METERS = 0;
     /** Physical location of the apriltag camera on the robot, relative to the center of the robot. */
     public static final Transform3d APRILTAG_CAMERA_TO_ROBOT = new Transform3d(
         new Translation3d(0.33655, -0.23495, 0.26035),

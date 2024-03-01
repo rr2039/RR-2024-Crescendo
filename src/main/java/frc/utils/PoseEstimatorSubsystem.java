@@ -149,6 +149,10 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  public PhotonPipelineResult getLatestTag() {
+    return photonEstimator.grabLatestTag();
+  }
+
   public Pose2d getCurrentResultPose() {
     return photonEstimator.grabLatestResult();
   }

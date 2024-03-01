@@ -6,27 +6,37 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
+import org.photonvision.PhotonUtils;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.utils.LinearInterpolator;
+import frc.utils.PoseEstimatorSubsystem;
 
 public class Shooter extends SubsystemBase {
   
   CANSparkMax rightShooter;
   CANSparkMax leftShooter;
-  AbsoluteEncoder shooterEnc;
+  RelativeEncoder shooterEnc;
   SparkPIDController shooterPID;
 
   ShuffleboardTab shooterTab = Shuffleboard.getTab("Shooter");
@@ -40,19 +50,23 @@ public class Shooter extends SubsystemBase {
   Supplier<Boolean> hasNote;
   boolean hadNote = false;
 
+  PoseEstimatorSubsystem poseEst;
+
   double shooterCurSetpoint = 0;
 
   private LinearInterpolator interpolator = new LinearInterpolator(ShooterConstants.shooterData);
 
   /** Creates a new Shooter. */
-  public Shooter(Supplier<Boolean> _hasNote) {
-    hasNote = _hasNote;
+  public Shooter(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
+    hasNote = m_hasNote;
+    poseEst = m_poseEst;
 
     rightShooter = new CANSparkMax(ShooterConstants.rightShooterCanId, MotorType.kBrushless);
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
 
-    shooterEnc = rightShooter.getAbsoluteEncoder(Type.kDutyCycle);
+    shooterEnc = rightShooter.getEncoder();
     shooterEnc.setPositionConversionFactor(2); //TODO: CALCULATE CONVERSION FACTOR
+    shooterEnc.setVelocityConversionFactor(2);
     shooterPos = shooterTab.add("ShooterPos", getShooterSpeed()).getEntry();
 
     rightShooter.restoreFactoryDefaults();
@@ -60,8 +74,8 @@ public class Shooter extends SubsystemBase {
 
     leftShooter.follow(rightShooter, true);
 
-    rightShooter.setIdleMode(IdleMode.kBrake);
-    leftShooter.setIdleMode(IdleMode.kBrake);
+    rightShooter.setIdleMode(IdleMode.kCoast);
+    leftShooter.setIdleMode(IdleMode.kCoast);
 
     shooterPID = rightShooter.getPIDController();
     shooterPID.setFeedbackDevice(shooterEnc);
@@ -69,11 +83,11 @@ public class Shooter extends SubsystemBase {
     shooterPID.setP(ShooterConstants.kShooterP);
     shooterP = shooterTab.add("ShooterP", shooterPID.getP(0)).getEntry();
     shooterPID.setI(ShooterConstants.kShooterI);
-    shooterI = shooterTab.add("ShooterI", shooterPID.getP(0)).getEntry();
+    shooterI = shooterTab.add("ShooterI", shooterPID.getI(0)).getEntry();
     shooterPID.setD(ShooterConstants.kShooterD);
-    shooterD = shooterTab.add("ShooterD", shooterPID.getP(0)).getEntry();
+    shooterD = shooterTab.add("ShooterD", shooterPID.getD(0)).getEntry();
     shooterPID.setFF(ShooterConstants.kShooterFF);
-    shooterFF = shooterTab.add("ShooterFF", shooterPID.getP(0)).getEntry();
+    shooterFF = shooterTab.add("ShooterFF", shooterPID.getFF(0)).getEntry();
 
     shooterSetpoint = shooterTab.add("ShooterSetpoint", shooterCurSetpoint).getEntry();
 
@@ -108,7 +122,7 @@ public class Shooter extends SubsystemBase {
   public void setIdle() {
     shooterCurSetpoint = ShooterConstants.idleSpeed;
   }
-  public double calculateAngleFromDistance(double distance) {
+  public double calculateSpeedFromDistance(double distance) {
     return interpolator.getInterpolatedValue(distance);
   }
 
@@ -123,6 +137,15 @@ public class Shooter extends SubsystemBase {
       hadNote = false;
     }*/
     setShooterSpeed(shooterCurSetpoint);
+
+    /*if (isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+      double range = PhotonUtils.calculateDistanceToTargetMeters(
+                      VisionConstants.CAMERA_HEIGHT_METERS,
+                      VisionConstants.TARGET_HEIGHT_METERS,
+                      VisionConstants.CAMERA_PITCH_RADIANS,
+                      Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
+      setShooterSetpoint(calculateSpeedFromDistance(range));
+    }*/
 
     shooterPos.setDouble(getShooterSpeed());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
@@ -148,5 +171,9 @@ public class Shooter extends SubsystemBase {
         setShooterSetpoint(tempSetpoint);
       }
     }
+  }
+
+  private boolean isSpeakerTag(double tag) {
+    return (tag == 7 || tag == 8 || tag == 3 || tag == 4);
   }
 }

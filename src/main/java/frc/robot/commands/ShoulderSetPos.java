@@ -5,21 +5,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ShoulderConstants;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shoulder;
 
-public class IntakeOut extends Command {
+public class ShoulderSetPos extends Command {
   Shoulder shoulder;
-  Intake intake;
+  boolean setpoint;
 
-  /** Creates a new IntakeOut. */
-  public IntakeOut(Intake m_intake, Shoulder m_shoulder) {
+  /** Creates a new ShoulderSetPos. */
+  public ShoulderSetPos(Shoulder m_shoulder, boolean m_setpoint) {
     shoulder = m_shoulder;
-    intake = m_intake;
+    setpoint = m_setpoint;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_intake, m_shoulder);
+    addRequirements(shoulder);
   }
 
   // Called when the command is initially scheduled.
@@ -29,26 +26,20 @@ public class IntakeOut extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shoulder.isHome()) {
-      intake.moveFlapperToPos(IntakeConstants.flapperGround);
-      intake.setBeltSpeed(-0.25);
-      intake.setIntakeSpeed(-0.75);
+    if (setpoint) {
+      shoulder.setShoulderSetpoint(shoulder.getShoulderSetpoint()+5);
     } else {
-      shoulder.goHome();
+      shoulder.setShoulderSetpoint(shoulder.getShoulderSetpoint()-5);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    intake.setBeltSpeed(0);
-    intake.setIntakeSpeed(0); 
-    intake.moveFlapperToPos(IntakeConstants.flapperHome);
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

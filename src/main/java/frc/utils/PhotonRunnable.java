@@ -87,4 +87,7 @@ public class PhotonRunnable implements Runnable {
     return layout.getTagPose(hasAResult.getBestTarget().getFiducialId()).get().toPose2d();
   }
 
+  public PhotonPipelineResult grabLatestTag() {
+    return hasAResult;
+  }
 }
