@@ -4,14 +4,13 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.configs.MountPoseConfigs;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
+import frc.robot.autos.Mobility;
 import frc.robot.commands.Climb;
 import frc.robot.commands.IntakeIn;
 import frc.robot.commands.IntakeOut;
@@ -41,7 +40,7 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Intake m_intake = new Intake();
-  public PoseEstimatorSubsystem m_poseEst = new frc.utils.PoseEstimatorSubsystem(m_robotDrive::newHeading, m_robotDrive::getModulePositions, m_robotDrive::getModuleStates);
+  public PoseEstimatorSubsystem m_poseEst = new PoseEstimatorSubsystem(m_robotDrive);
   private final Shoulder m_shoulder = new Shoulder(m_poseEst);
   private final Shooter m_shooter = new Shooter(m_intake::hasNote, m_poseEst);
   private final Climber m_climber = new Climber();
@@ -75,6 +74,16 @@ public class RobotContainer {
                 Math.pow(MathUtil.applyDeadband(-m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 3),
                 true, false),
             m_robotDrive));
+
+    // Build an auto chooser. This will use Commands.none() as the default option.
+    //auto_chooser = AutoBuilder.buildAutoChooser();
+
+    // Another option that allows you to specify the default auto by its name
+    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
+
+    auto_chooser.addOption("Mobility", new Mobility());
+
+    SmartDashboard.putData("Auto Chooser", auto_chooser);
   }
 
   /**

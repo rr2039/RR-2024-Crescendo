@@ -4,11 +4,8 @@
 
 package frc.utils;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 
 /** Add your docs here. */
 public class LEDStrip {

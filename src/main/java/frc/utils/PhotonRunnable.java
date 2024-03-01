@@ -5,7 +5,6 @@ import static frc.robot.Constants.VisionConstants.APRILTAG_CAMERA_TO_ROBOT;
 import static frc.robot.Constants.VisionConstants.FIELD_LENGTH_METERS;
 import static frc.robot.Constants.VisionConstants.FIELD_WIDTH_METERS;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.photonvision.EstimatedRobotPose;
@@ -18,9 +17,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 
 /**

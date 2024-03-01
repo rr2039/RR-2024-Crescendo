@@ -6,14 +6,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
-import frc.utils.LEDEffects;
 import frc.utils.LEDUtility;
 
 // Move flap to ground pos

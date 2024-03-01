@@ -7,27 +7,29 @@ import java.util.function.Supplier;
 
 import org.photonvision.targeting.PhotonPipelineResult;
 
-import edu.wpi.first.apriltag.AprilTagFields;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * Pose estimator that uses odometry and AprilTags with PhotonVision.
@@ -63,12 +65,11 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   private OriginPosition originPosition = kBlueAllianceWallRightSide;
   private boolean sawTag = false;
 
-  public PoseEstimatorSubsystem(
-      Supplier<Rotation2d> rotationSupplier, Supplier<SwerveModulePosition[]> modulePositionSupplier, Supplier<SwerveModuleState[]> moduleStateSupplier) {
+  public PoseEstimatorSubsystem(DriveSubsystem m_drive) {
     
-    this.rotationSupplier = rotationSupplier;
-    this.modulePositionSupplier = modulePositionSupplier;
-    this.moduleStateSupplier = moduleStateSupplier;
+    this.rotationSupplier = m_drive::newHeading;
+    this.modulePositionSupplier = m_drive::getModulePositions;
+    this.moduleStateSupplier = m_drive::getModuleStates;
 
     poseEstimator =  new SwerveDrivePoseEstimator(
         DriveConstants.kDriveKinematics,
@@ -81,6 +82,38 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     // Start PhotonVision thread
     photonNotifier.setName("PhotonRunnable");
     photonNotifier.startPeriodic(0.02);
+
+    // Configure AutoBuilder last
+    AutoBuilder.configureHolonomic(
+            this::getCurrentPose, // Robot pose supplier
+            this::setCurrentPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            (ChassisSpeeds speeds) -> m_drive.drive( // needs to be robot-relative
+            speeds.vxMetersPerSecond,
+            speeds.vyMetersPerSecond,
+            speeds.omegaRadiansPerSecond,
+            false, false), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                    new PIDConstants(2.0, 0.0, 0.01), // Translation PID constants
+                    new PIDConstants(2.0, 0.0, 0.0), // Rotation PID constants
+                    0.75, // Max module speed, in m/s
+                    0.54, // Drive base radius in meters. Distance from robot center to furthest module.
+                    new ReplanningConfig() // Default path replanning config. See the API for the options here
+                    //new ReplanningConfig(true, true, 3.0, 1.0) // Default path replanning config. See the API for the options here
+            ),
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            m_drive // Reference to this subsystem to set requirements
+    );
   }
 
   /**
