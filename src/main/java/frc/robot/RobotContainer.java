@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -62,6 +64,7 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+    
 
     // Configure default commands
     m_robotDrive.setDefaultCommand(
@@ -69,14 +72,14 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                Math.pow(MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband), 3),
-                Math.pow(MathUtil.applyDeadband(-m_driverController.getRawAxis(1), OIConstants.kDriveDeadband), 3),
-                Math.pow(MathUtil.applyDeadband(-m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 3),
+                MathUtil.applyDeadband(Math.pow(m_driverController.getRawAxis(0), 2) * Math.signum(m_driverController.getRawAxis(0)), OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(Math.pow(-m_driverController.getRawAxis(1), 2) * Math.signum(-m_driverController.getRawAxis(1)), OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(Math.pow(-m_driverController.getRawAxis(4), 2) * Math.signum(-m_driverController.getRawAxis(4)), OIConstants.kDriveDeadband),
                 true, false),
             m_robotDrive));
 
     // Build an auto chooser. This will use Commands.none() as the default option.
-    //auto_chooser = AutoBuilder.buildAutoChooser();
+    auto_chooser = AutoBuilder.buildAutoChooser();
 
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
@@ -103,7 +106,7 @@ public class RobotContainer {
             () -> m_robotDrive.setX(),
             m_robotDrive));
     new JoystickButton(m_driverController, Button.kRightBumper.value)
-        .whileTrue(new ShooterFeed(m_intake));
+        .whileTrue(new ShooterFeed(m_intake, m_shooter));
     new JoystickButton(m_driverController, Button.kB.value)
         .whileTrue(new RunCommand(() -> m_robotDrive.zeroHeading()));
 
@@ -112,15 +115,15 @@ public class RobotContainer {
         .whileTrue(new IntakeIn(m_intake, m_shoulder, m_shooter, m_ledUtil, m_driverController, m_operatorController));
     new JoystickButton(m_operatorController, Button.kLeftBumper.value)
         .whileTrue(new IntakeOut(m_intake, m_shoulder));
-    new POVButton(m_operatorController, 180)
-        .whileTrue(new Climb(m_climber, true));
-    new POVButton(m_operatorController, 0)
-        .whileTrue(new Climb(m_climber, false));
-    new POVButton(m_operatorController, 270)
-        .whileTrue(new ShooterOn(m_shooter));
-    new JoystickButton(m_operatorController, Button.kY.value)
-        .onTrue(new ShoulderSetPos(m_shoulder, true));
     new JoystickButton(m_operatorController, Button.kA.value)
+        .whileTrue(new Climb(m_climber, m_shoulder, true));
+    new JoystickButton(m_operatorController, Button.kY.value)
+        .whileTrue(new Climb(m_climber, m_shoulder, false));
+    new POVButton(m_operatorController, 270)
+        .whileTrue(new ShooterOn(m_shooter, m_shoulder, m_driverController));
+    new POVButton(m_operatorController, 0)
+        .onTrue(new ShoulderSetPos(m_shoulder, true));
+    new POVButton(m_operatorController, 180)
         .onTrue(new ShoulderSetPos(m_shoulder, false));
     new JoystickButton(m_operatorController, Button.kX.value)
         .onTrue(new RunCommand(() -> m_shoulder.setShoulderSetpoint(35), m_shoulder));

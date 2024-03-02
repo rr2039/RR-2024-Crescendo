@@ -15,7 +15,7 @@ public class Mobility extends SequentialCommandGroup {
   /** Creates a new Mobility. */
   public Mobility() {
     PathPlannerPath path = PathPlannerPath.fromPathFile("Mobility");
-    
+
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(AutoBuilder.followPath(path));

@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -90,7 +91,12 @@ public class MAXSwerveModule {
     slot0Configs.kD = ModuleConstants.kDrivingD;
     slot0Configs.kV = ModuleConstants.kDrivingFF;
 
+    var currentLimits = new CurrentLimitsConfigs();
+    currentLimits.StatorCurrentLimit = 100;
+    currentLimits.StatorCurrentLimitEnable = true;
+
     m_drivingTalonFX.getConfigurator().apply(slot0Configs);
+    m_drivingTalonFX.getConfigurator().apply(currentLimits);
 
     // Set the PID gains for the turning motor. Note these are example gains, and you
     // may need to tune them for your own robot!

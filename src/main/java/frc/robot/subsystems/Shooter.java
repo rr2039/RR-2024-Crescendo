@@ -11,6 +11,8 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -41,6 +43,8 @@ public class Shooter extends SubsystemBase {
   PoseEstimatorSubsystem poseEst;
 
   double shooterCurSetpoint = 0;
+  
+  SlewRateLimiter shooterSlew = new SlewRateLimiter(1500);
 
   private LinearInterpolator interpolator = new LinearInterpolator(ShooterConstants.shooterData);
 
@@ -92,7 +96,7 @@ public class Shooter extends SubsystemBase {
   }
   
   public void setShooterSpeed(double velocity) {
-    shooterPID.setReference(velocity, ControlType.kVelocity);
+    shooterPID.setReference(shooterSlew.calculate(velocity), ControlType.kVelocity);
   }
 
   public void setShooterSetpoint(double velocity) {
@@ -104,7 +108,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return getShooterSpeed() == shooterCurSetpoint;
+    return shooterCurSetpoint - 100 <= getShooterSpeed() && getShooterSpeed() <= shooterCurSetpoint + 100;
   }
 
   public void setIdle() {

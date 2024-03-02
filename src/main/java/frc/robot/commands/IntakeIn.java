@@ -49,8 +49,9 @@ public class IntakeIn extends Command {
     if (shoulder.isHome()) {
       if (!intake.hasNote()) {
         intake.moveFlapperToPos(IntakeConstants.flapperGround);
-        intake.setBeltSpeed(0.25);
-        intake.setIntakeSpeed(0.75);
+        // This is negative to remove the need to invert spark
+        intake.setIntakeSpeed(-0.75);
+        intake.setBeltSpeed(0.35);
         //LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
       } else {
         //shooter.setIdle();

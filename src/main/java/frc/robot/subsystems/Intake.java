@@ -15,6 +15,8 @@ import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
@@ -38,6 +40,7 @@ public class Intake extends SubsystemBase {
   private ColorMatch m_colorMatcher = new ColorMatch();
 
   private DigitalInput intakePhotoEye;
+  Debouncer debounce = new Debouncer(0.1, DebounceType.kBoth);
 
   ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake");
   GenericEntry flapperPos;
@@ -61,7 +64,8 @@ public class Intake extends SubsystemBase {
     intake.restoreFactoryDefaults();
     belt.restoreFactoryDefaults();
 
-    intake.setInverted(true);
+    // This aint working, so screw it.
+    //intake.setInverted(true);
 
     flapperEnc = flapper.getAbsoluteEncoder(Type.kDutyCycle);
     flapperEnc.setPositionConversionFactor(240); //TODO: CALCULATE CONVERSION FACTOR
@@ -106,7 +110,7 @@ public class Intake extends SubsystemBase {
     m_colorMatcher.addColorMatch(new Color("#7F6619"));
     m_colorMatcher.addColorMatch(new Color("#895F16"));
     hasNote = intakeTab.add("Has Note", hasNote()).getEntry();
-    colorSensorRead = intakeTab.add("Color Sensed", colorSensor.getColor().toString()).getEntry();
+    //colorSensorRead = intakeTab.add("Color Sensed", colorSensor.getColor().toString()).getEntry();
   }
 
   public boolean hasNote() {
@@ -116,7 +120,8 @@ public class Intake extends SubsystemBase {
     } else {
       return false;
     }*/
-    return !intakePhotoEye.get();
+    //return !intakePhotoEye.get();
+    return debounce.calculate(!intakePhotoEye.get());
   }
 
   public double getFlapperPos() {
@@ -152,7 +157,7 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
     flapperPos.setDouble(getFlapperPos());
     hasNote.setBoolean(hasNote());
-    colorSensorRead.setString(colorSensor.getColor().toString());
+    //colorSensorRead.setString(colorSensor.getColor().toString());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       flapperSetpoint.setDouble(flapperCurSetpoint);
       double tempP = flapperP.getDouble(flapperPID.getP(0));

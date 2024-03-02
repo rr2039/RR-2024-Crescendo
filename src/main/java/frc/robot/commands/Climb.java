@@ -6,13 +6,16 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Shoulder;
 
 public class Climb extends Command {
   Climber climber;
+  Shoulder shoulder;
   boolean lift;
   /** Creates a new Climb. */
-  public Climb(Climber m_climber, boolean m_lift) {
+  public Climb(Climber m_climber, Shoulder m_shoulder, boolean m_lift) {
     climber = m_climber;
+    shoulder = m_shoulder;
     lift = m_lift;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_climber);
@@ -26,8 +29,11 @@ public class Climb extends Command {
   @Override
   public void execute() {
     if (lift) {
+      // Down
       climber.setClimberSpeed(0.5);
+      shoulder.setShoulderSetpoint(35);
     } else {
+      // Up
       climber.setClimberSpeed(-0.5);
     }
   }

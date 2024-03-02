@@ -82,7 +82,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     // Start PhotonVision thread
     photonNotifier.setName("PhotonRunnable");
     photonNotifier.startPeriodic(0.02);
-
+    
     // Configure AutoBuilder last
     AutoBuilder.configureHolonomic(
             this::getCurrentPose, // Robot pose supplier

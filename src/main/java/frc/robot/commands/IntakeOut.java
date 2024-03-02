@@ -30,8 +30,9 @@ public class IntakeOut extends Command {
   public void execute() {
     if (shoulder.isHome()) {
       intake.moveFlapperToPos(IntakeConstants.flapperGround);
+      // Positive so we dont have to invert the spark
+      intake.setIntakeSpeed(0.75);
       intake.setBeltSpeed(-0.25);
-      intake.setIntakeSpeed(-0.75);
     } else {
       shoulder.goHome();
     }

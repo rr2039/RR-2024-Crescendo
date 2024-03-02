@@ -40,7 +40,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxSpeedMetersPerSecond = 4.5;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     public static final double kDirectionSlewRate = 1.2; // radians per second
@@ -83,10 +83,10 @@ public final class Constants {
     public static final int leftShooterCanId = 20;
     public static final int rightShooterCanId = 21;
 
-    public static final double kShooterP = 0.0001;
+    public static final double kShooterP = 0.0005;
     public static final double kShooterI = 0;
     public static final double kShooterD = 0;
-    public static final double kShooterFF = 0;
+    public static final double kShooterFF = 0.00020;
 
     public static final double idleSpeed = 500;
 
@@ -205,7 +205,7 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.07;
+    public static final double kDriveDeadband = 0.08;
     public static final int kOperatorControllerPort = 1;
     public static final double kOperatorDeadband = 0.05;
   }
@@ -230,13 +230,13 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final double CAMERA_HEIGHT_METERS = 0;
-    public static final double CAMERA_PITCH_RADIANS = degreesToRadians(0);
-    public static final double TARGET_HEIGHT_METERS = 0;
+    public static final double CAMERA_HEIGHT_METERS = 0.17145;
+    public static final double CAMERA_PITCH_RADIANS = degreesToRadians(24.0);
+    public static final double TARGET_HEIGHT_METERS = 1.4351;
     /** Physical location of the apriltag camera on the robot, relative to the center of the robot. */
     public static final Transform3d APRILTAG_CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(0.33655, -0.23495, 0.26035),
-        new Rotation3d(0.0, degreesToRadians(18.0), degreesToRadians(0.0)));
+        new Translation3d(-0.32385, 0.1016, 0.17145),
+        new Rotation3d(0.0, degreesToRadians(24.0), degreesToRadians(0.0)));
 
     public static final double FIELD_LENGTH_METERS = 16.54175;
     public static final double FIELD_WIDTH_METERS = 8.0137;
