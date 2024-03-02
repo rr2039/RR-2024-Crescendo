@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
 import frc.robot.autos.Mobility;
+import frc.robot.autos.SPSourceSide;
 import frc.robot.commands.Climb;
 import frc.robot.commands.IntakeIn;
 import frc.robot.commands.IntakeOut;
@@ -85,6 +86,7 @@ public class RobotContainer {
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
     auto_chooser.addOption("Mobility", new Mobility());
+    auto_chooser.addOption("SP Source Side", new SPSourceSide(m_shooter, m_shoulder, m_intake, m_poseEst));
 
     SmartDashboard.putData("Auto Chooser", auto_chooser);
   }

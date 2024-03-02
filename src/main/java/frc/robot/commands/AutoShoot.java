@@ -5,48 +5,54 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Climber;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
+import frc.robot.subsystems.Intake;
 
-public class Climb extends Command {
-  Climber climber;
-  Shoulder shoulder;
-  boolean lift;
-  /** Creates a new Climb. */
-  public Climb(Climber m_climber, Shoulder m_shoulder, boolean m_lift) {
-    climber = m_climber;
+public class AutoShoot extends Command {
+    Shooter shooter;
+    Shoulder shoulder;
+    Intake intake;
+    int counter = 0;
+  /** Creates a new AutoShoot. */
+  public AutoShoot(Shooter m_shooter, Shoulder m_shoulder, Intake m_intake) {
+    shooter = m_shooter;
     shoulder = m_shoulder;
-    lift = m_lift;
+    intake = m_intake;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_climber);
+    addRequirements(shooter, shoulder, intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    counter = 0;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (lift) {
-      // Down
-      climber.setClimberSpeed(0.5);
-      shoulder.setShoulderSetpoint(35);
-    } else {
-      // Up
-      climber.setClimberSpeed(-0.75);
+    shoulder.setShoulderSetpoint(80);
+    shooter.setShooterSetpoint(1200);
+    if (shooter.atSetpoint()) {
+      intake.setBeltSpeed(1);
+      counter++;
     }
+
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    climber.setClimberSpeed(0);
+    shooter.setShooterSetpoint(0);
+    intake.setBeltSpeed(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return counter == (2 * 50);
   }
 }
