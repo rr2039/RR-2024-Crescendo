@@ -94,6 +94,8 @@ public class MAXSwerveModule {
     var currentLimits = new CurrentLimitsConfigs();
     currentLimits.StatorCurrentLimit = 100;
     currentLimits.StatorCurrentLimitEnable = true;
+    currentLimits.SupplyCurrentLimit = 40;
+    currentLimits.SupplyCurrentLimitEnable = true;
 
     m_drivingTalonFX.getConfigurator().apply(slot0Configs);
     m_drivingTalonFX.getConfigurator().apply(currentLimits);
