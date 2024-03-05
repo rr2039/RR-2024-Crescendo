@@ -139,15 +139,18 @@ public class Shoulder extends SubsystemBase {
 
     moveShoulderToPos(shoulderCurSetpoint);
 
-    /*if (isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+    if (poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
       System.out.println(range);
+      if (1 <= range || range <= 5) {
+        setShoulderSetpoint(interpolator.getInterpolatedValue(range));
+      }
       //setShoulderSetpoint(calculateAngleFromDistance(range));
-    }*/
+    }
 
     shoulderPos.setDouble(getShoulderPos());
     if (Constants.CODEMODE == Constants.MODES.TEST) {

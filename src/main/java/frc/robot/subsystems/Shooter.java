@@ -5,20 +5,27 @@
 package frc.robot.subsystems;
 
 import java.util.function.Supplier;
+
+import org.photonvision.PhotonUtils;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.utils.LinearInterpolator;
 import frc.utils.PoseEstimatorSubsystem;
 
@@ -36,6 +43,8 @@ public class Shooter extends SubsystemBase {
   GenericEntry shooterI;
   GenericEntry shooterD;
   GenericEntry shooterFF;
+  GenericEntry busVoltage;
+  GenericEntry appliedOutput;
 
   Supplier<Boolean> hasNote;
   boolean hadNote = false;
@@ -44,9 +53,11 @@ public class Shooter extends SubsystemBase {
 
   double shooterCurSetpoint = 0;
   
-  SlewRateLimiter shooterSlew = new SlewRateLimiter(1500);
+  SlewRateLimiter shooterSlew = new SlewRateLimiter(6000);
 
   private LinearInterpolator interpolator = new LinearInterpolator(ShooterConstants.shooterData);
+
+  SimpleMotorFeedforward arbFF = new SimpleMotorFeedforward(-0.2573, 0.002508);
 
   /** Creates a new Shooter. */
   public Shooter(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
@@ -57,8 +68,8 @@ public class Shooter extends SubsystemBase {
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
 
     shooterEnc = rightShooter.getEncoder();
-    shooterEnc.setPositionConversionFactor(2); //TODO: CALCULATE CONVERSION FACTOR
-    shooterEnc.setVelocityConversionFactor(2);
+    shooterEnc.setPositionConversionFactor(1); //TODO: CALCULATE CONVERSION FACTOR
+    shooterEnc.setVelocityConversionFactor(1);
     shooterPos = shooterTab.add("ShooterPos", getShooterSpeed()).getEntry();
 
     rightShooter.restoreFactoryDefaults();
@@ -83,6 +94,9 @@ public class Shooter extends SubsystemBase {
 
     shooterSetpoint = shooterTab.add("ShooterSetpoint", shooterCurSetpoint).getEntry();
 
+    appliedOutput = shooterTab.add("AppliedOutput", leftShooter.getAppliedOutput()).getEntry();
+    busVoltage = shooterTab.add("BusVoltage", leftShooter.getBusVoltage()).getEntry();
+
     rightShooter.burnFlash();
     leftShooter.burnFlash();
   }
@@ -96,7 +110,7 @@ public class Shooter extends SubsystemBase {
   }
   
   public void setShooterSpeed(double velocity) {
-    shooterPID.setReference(shooterSlew.calculate(velocity), ControlType.kVelocity);
+    shooterPID.setReference(shooterSlew.calculate(velocity), ControlType.kVelocity, 0, arbFF.calculate(velocity));
   }
 
   public void setShooterSetpoint(double velocity) {
@@ -130,16 +144,22 @@ public class Shooter extends SubsystemBase {
     }*/
     setShooterSpeed(shooterCurSetpoint);
 
-    /*if (isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+    if (poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      setShooterSetpoint(calculateSpeedFromDistance(range));
-    }*/
+      //System.out.println(range);
+      if (1 <= range || range <= 5) {
+        setShooterSetpoint(interpolator.getInterpolatedValue(range));
+      }
+      //setShoulderSetpoint(calculateAngleFromDistance(range));
+    }
 
     shooterPos.setDouble(getShooterSpeed());
+    busVoltage.setDouble(leftShooter.getBusVoltage());
+    appliedOutput.setDouble(leftShooter.getAppliedOutput());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       shooterSetpoint.setDouble(shooterCurSetpoint);
       double tempP = shooterP.getDouble(shooterPID.getP(0));

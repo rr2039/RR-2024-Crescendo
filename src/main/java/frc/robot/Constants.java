@@ -83,15 +83,19 @@ public final class Constants {
     public static final int leftShooterCanId = 20;
     public static final int rightShooterCanId = 21;
 
-    public static final double kShooterP = 0.0005;
+    public static final double kShooterP = 0.001;
     public static final double kShooterI = 0;
-    public static final double kShooterD = 0;
-    public static final double kShooterFF = 0.00020;
+    public static final double kShooterD = 0.0001;
+    public static final double kShooterFF = 0;
 
     public static final double idleSpeed = 500;
 
     public static final double[][] shooterData = {
-      {0,0}
+      {1.2, 1200},
+      {2.0, 1200},
+      {3.0, 1500},
+      {3.3, 1550},
+      {4.5, 1700}
     };
   }
 
@@ -108,7 +112,11 @@ public final class Constants {
     public static final double kShoulderFF = 0;
 
     public static final double[][] shoulderData = {
-      {0,0}
+      {1.2,80},
+      {2.0, 70},
+      {3.0, 57},
+      {3.3, 54},
+      {4.5, 51}
     };
   }
 
@@ -230,8 +238,8 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final double CAMERA_HEIGHT_METERS = 0.17145;
-    public static final double CAMERA_PITCH_RADIANS = degreesToRadians(24.0);
+    public static final double CAMERA_HEIGHT_METERS = 0.161925;
+    public static final double CAMERA_PITCH_RADIANS = degreesToRadians(37.5);
     public static final double TARGET_HEIGHT_METERS = 1.4351;
     /** Physical location of the apriltag camera on the robot, relative to the center of the robot. */
     public static final Transform3d APRILTAG_CAMERA_TO_ROBOT = new Transform3d(
