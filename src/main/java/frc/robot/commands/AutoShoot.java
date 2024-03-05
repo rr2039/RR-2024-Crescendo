@@ -34,8 +34,8 @@ public class AutoShoot extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shoulder.setShoulderSetpoint(80);
-    shooter.setShooterSetpoint(1200);
+    //shoulder.setShoulderSetpoint(80);
+    //shooter.setShooterSetpoint(1200);
     if (shooter.atSetpoint()) {
       intake.setBeltSpeed(1);
       counter++;

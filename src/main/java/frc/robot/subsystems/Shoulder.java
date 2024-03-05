@@ -10,6 +10,8 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import java.util.function.Supplier;
+
 import org.photonvision.PhotonUtils;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -53,9 +55,12 @@ public class Shoulder extends SubsystemBase {
 
   ArmFeedforward feedforward;
 
+  Supplier<Boolean> hasNote;
+
   /** Creates a new Shoulder. */
-  public Shoulder(PoseEstimatorSubsystem m_poseEst) {
+  public Shoulder(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
     poseEst = m_poseEst;
+    hasNote = m_hasNote;
 
     feedforward = new ArmFeedforward(0, 0.75, 0, 0);
 
@@ -139,17 +144,20 @@ public class Shoulder extends SubsystemBase {
 
     moveShoulderToPos(shoulderCurSetpoint);
 
-    if (poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+    if (hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      System.out.println(range);
+      //System.out.println(range);
+      //System.out.println(poseEst.getLatestTag().getBestTarget().getYaw());
       if (1 <= range || range <= 5) {
         setShoulderSetpoint(interpolator.getInterpolatedValue(range));
       }
       //setShoulderSetpoint(calculateAngleFromDistance(range));
+    } else {
+      goHome();
     }
 
     shoulderPos.setDouble(getShoulderPos());

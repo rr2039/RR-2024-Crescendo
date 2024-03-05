@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
 import frc.robot.autos.Mobility;
 import frc.robot.autos.SPSourceSide;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.Climb;
 import frc.robot.commands.IntakeIn;
 import frc.robot.commands.IntakeOut;
@@ -29,6 +30,7 @@ import frc.utils.PoseEstimatorSubsystem;
 import frc.utils.LEDStrip;
 import frc.utils.LEDUtility;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -44,7 +46,7 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Intake m_intake = new Intake();
   public PoseEstimatorSubsystem m_poseEst = new PoseEstimatorSubsystem(m_robotDrive);
-  private final Shoulder m_shoulder = new Shoulder(m_poseEst);
+  private final Shoulder m_shoulder = new Shoulder(m_intake::hasNote, m_poseEst);
   private final Shooter m_shooter = new Shooter(m_intake::hasNote, m_poseEst);
   private final Climber m_climber = new Climber();
 
@@ -110,7 +112,9 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kRightBumper.value)
         .whileTrue(new ShooterFeed(m_intake, m_shooter));
     new JoystickButton(m_driverController, Button.kB.value)
-        .whileTrue(new RunCommand(() -> m_robotDrive.zeroHeading()));
+        .onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
+    new JoystickButton(m_driverController, Button.kA.value)
+        .whileTrue(new AutoAim(m_robotDrive, m_poseEst, m_driverController));
 
     // OPERATOR CONTROLLER
     new JoystickButton(m_operatorController, Button.kRightBumper.value)

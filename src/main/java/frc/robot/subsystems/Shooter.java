@@ -122,7 +122,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return shooterCurSetpoint - 100 <= getShooterSpeed() && getShooterSpeed() <= shooterCurSetpoint + 100;
+    return (shooterCurSetpoint - 100 <= getShooterSpeed() && getShooterSpeed() <= shooterCurSetpoint + 100) && shooterCurSetpoint > 0;
   }
 
   public void setIdle() {
@@ -144,7 +144,7 @@ public class Shooter extends SubsystemBase {
     }*/
     setShooterSpeed(shooterCurSetpoint);
 
-    if (poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+    if (hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
@@ -155,6 +155,8 @@ public class Shooter extends SubsystemBase {
         setShooterSetpoint(interpolator.getInterpolatedValue(range));
       }
       //setShoulderSetpoint(calculateAngleFromDistance(range));
+    } else {
+      setShooterSetpoint(0);
     }
 
     shooterPos.setDouble(getShooterSpeed());
