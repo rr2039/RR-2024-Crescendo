@@ -40,7 +40,7 @@ public class Intake extends SubsystemBase {
   private ColorMatch m_colorMatcher = new ColorMatch();
 
   private DigitalInput intakePhotoEye;
-  Debouncer debounce = new Debouncer(0.1, DebounceType.kBoth);
+  Debouncer debounce = new Debouncer(0.075, DebounceType.kBoth);
 
   ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake");
   GenericEntry flapperPos;

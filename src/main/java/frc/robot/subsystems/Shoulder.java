@@ -133,7 +133,7 @@ public class Shoulder extends SubsystemBase {
   }
 
   public boolean atShoulderSetpoint() {
-    return getShoulderPos() == shoulderCurSetpoint;
+    return shoulderCurSetpoint - 1 <= getShoulderPos() && getShoulderPos() <= shoulderCurSetpoint + 1;
   }
 
   public double calculateAngleFromDistance(double distance) {

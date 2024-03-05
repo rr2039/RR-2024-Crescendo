@@ -7,16 +7,19 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shoulder;
 
 public class ShooterFeed extends Command {
   Intake intake;
   Shooter shooter;
+  Shoulder shoulder;
   double counter = 0;
 
   /** Creates a new ShooterFeed. */
-  public ShooterFeed(Intake m_intake, Shooter m_shooter) {
+  public ShooterFeed(Intake m_intake, Shooter m_shooter, Shoulder m_shoulder) {
     intake = m_intake;
     shooter = m_shooter;
+    shoulder = m_shoulder;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_intake);
   }
@@ -30,7 +33,7 @@ public class ShooterFeed extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shooter.atSetpoint()) {
+    if (shooter.atSetpoint() && shoulder.atShoulderSetpoint()) {
       intake.setBeltSpeed(1);
       counter++;
     }
