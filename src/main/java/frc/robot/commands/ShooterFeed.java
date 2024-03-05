@@ -11,6 +11,7 @@ import frc.robot.subsystems.Shooter;
 public class ShooterFeed extends Command {
   Intake intake;
   Shooter shooter;
+  double counter = 0;
 
   /** Creates a new ShooterFeed. */
   public ShooterFeed(Intake m_intake, Shooter m_shooter) {
@@ -22,13 +23,16 @@ public class ShooterFeed extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    counter = 0;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (shooter.atSetpoint()) {
       intake.setBeltSpeed(1);
+      counter++;
     }
   }
 
@@ -41,6 +45,6 @@ public class ShooterFeed extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return counter == (0.5 * 50);
   }
 }

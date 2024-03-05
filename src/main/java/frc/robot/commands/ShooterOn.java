@@ -25,17 +25,20 @@ public class ShooterOn extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    shooter.setManualOverride(true);
+    shoulder.setManualOverride(true);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.setShooterSetpoint(1700);
+    shooter.setShooterSetpoint(1200);
     if (shooter.atSetpoint()) {
       driver.setRumble(RumbleType.kBothRumble, 1);
     }
     //shooter.setShooter(0.35);
-    //shoulder.setShoulderSetpoint(80);
+    shoulder.setShoulderSetpoint(80);
   }
 
   // Called once the command ends or is interrupted.
@@ -44,6 +47,8 @@ public class ShooterOn extends Command {
     //shooter.setShooterSetpoint(500);
     shooter.setShooterSetpoint(0);
     driver.setRumble(RumbleType.kBothRumble, 0);
+    shooter.setManualOverride(false);
+    shoulder.setManualOverride(false);
  }
 
   // Returns true when the command should end.

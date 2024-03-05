@@ -57,6 +57,8 @@ public class Shoulder extends SubsystemBase {
 
   Supplier<Boolean> hasNote;
 
+  boolean manualOverride = false;
+
   /** Creates a new Shoulder. */
   public Shoulder(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
     poseEst = m_poseEst;
@@ -138,13 +140,21 @@ public class Shoulder extends SubsystemBase {
     return interpolator.getInterpolatedValue(distance);
   }
 
+  public boolean getManualOverride() {
+    return manualOverride;
+  }
+
+  public void setManualOverride(boolean override) {
+    manualOverride = override;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
     moveShoulderToPos(shoulderCurSetpoint);
 
-    if (hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+    if (!manualOverride && hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,

@@ -110,7 +110,7 @@ public class RobotContainer {
             () -> m_robotDrive.setX(),
             m_robotDrive));
     new JoystickButton(m_driverController, Button.kRightBumper.value)
-        .whileTrue(new ShooterFeed(m_intake, m_shooter));
+        .onTrue(new ShooterFeed(m_intake, m_shooter));
     new JoystickButton(m_driverController, Button.kB.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
     new JoystickButton(m_driverController, Button.kA.value)
