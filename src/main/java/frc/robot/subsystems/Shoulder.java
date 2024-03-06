@@ -12,6 +12,9 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import frc.utils.PoseUtils;
 import org.photonvision.PhotonUtils;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -59,6 +62,8 @@ public class Shoulder extends SubsystemBase {
 
   boolean manualOverride = false;
 
+  AprilTagFieldLayout layout;
+
   int counter = 0;
 
   /** Creates a new Shoulder. */
@@ -103,6 +108,10 @@ public class Shoulder extends SubsystemBase {
 
     rightShoulder.burnFlash();
     leftShoulder.burnFlash();
+
+    layout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    // PV estimates will always be blue, they'll get flipped by robot thread
+    layout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
   }
 
   public double getShoulderPos() {
@@ -162,12 +171,12 @@ public class Shoulder extends SubsystemBase {
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      //System.out.println(range);
-      //System.out.println(poseEst.getLatestTag().getBestTarget().getYaw());
-      if (1 <= range || range <= 5) {
+      double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
+      System.out.println("Pose Range: " + distanceToTarget);
+      System.out.println("Vision Range: " + range);
+      if (PoseUtils.inRange(range)) {
         setShoulderSetpoint(interpolator.getInterpolatedValue(range));
       }
-      //setShoulderSetpoint(calculateAngleFromDistance(range));
       counter = 0;
     } else {
       if (counter == (1 * 50)) {
@@ -204,6 +213,6 @@ public class Shoulder extends SubsystemBase {
   }
 
   private boolean isSpeakerTag(double tag) {
-    return (tag == 7 || tag == 8 || tag == 3 || tag == 4);
+    return (tag == 7 || tag == 4);
   }
 }

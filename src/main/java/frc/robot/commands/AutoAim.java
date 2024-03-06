@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.utils.PoseUtils;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 
@@ -49,29 +50,21 @@ public class AutoAim extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    turnPID.setSetpoint(0);
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    PhotonPipelineResult tag = poseEst.getLatestTag();
-    if (tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
-      System.out.println(tag.getBestTarget().getYaw());
-      /*double range = PhotonUtils.calculateDistanceToTargetMeters(
-                      VisionConstants.CAMERA_HEIGHT_METERS,
-                      VisionConstants.TARGET_HEIGHT_METERS,
-                      VisionConstants.CAMERA_PITCH_RADIANS,
-                      Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));*/
-      Rotation2d yaw = PhotonUtils.getYawToPose(poseEst.getCurrentPose(), layout.getTagPose(tag.getBestTarget().getFiducialId()).get().toPose2d());
+    //PhotonPipelineResult tag = poseEst.getLatestTag();
+    //if (tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
+      Rotation2d yaw = PhotonUtils.getYawToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
       System.out.println(yaw.getDegrees() + ": YawToPose");
       drive.drive(MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
             MathUtil.applyDeadband(-driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-            turnPID.calculate(-yaw.getRadians()),
+            turnPID.calculate(-yaw.getRadians(), 0),
             true,
             false);
-    }
+    //}
   }
 
   // Called once the command ends or is interrupted.
@@ -82,9 +75,5 @@ public class AutoAim extends Command {
   @Override
   public boolean isFinished() {
     return false;
-  }
-
-  private boolean isSpeakerTag(double tag) {
-    return (tag == 7 || tag == 8 || tag == 3 || tag == 4);
   }
 }

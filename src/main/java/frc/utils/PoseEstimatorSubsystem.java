@@ -186,10 +186,6 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     return photonEstimator.grabLatestTag();
   }
 
-  public Pose2d getCurrentResultPose() {
-    return photonEstimator.grabLatestResult();
-  }
-
   public ChassisSpeeds getChassisSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(moduleStateSupplier.get());
   }

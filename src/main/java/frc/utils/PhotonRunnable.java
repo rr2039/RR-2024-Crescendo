@@ -55,7 +55,7 @@ public class PhotonRunnable implements Runnable {
     if (photonPoseEstimator != null && photonCamera != null && !RobotState.isAutonomous()) {
       photonResults = photonCamera.getLatestResult();
       if (photonResults.hasTargets()) {
-        hasAResult = photonResults;
+        //hasAResult = photonResults;
           //&& (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < APRILTAG_AMBIGUITY_THRESHOLD)) { 
         photonPoseEstimator.update(photonResults).ifPresent(estimatedRobotPose -> {
           var estimatedPose = estimatedRobotPose.estimatedPose;
@@ -84,6 +84,6 @@ public class PhotonRunnable implements Runnable {
   }
 
   public PhotonPipelineResult grabLatestTag() {
-    return hasAResult;
+    return photonResults;
   }
 }
