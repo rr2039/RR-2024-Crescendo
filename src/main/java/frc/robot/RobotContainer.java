@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -59,6 +60,10 @@ public class RobotContainer {
   // Auto Chooser for Dashboard
   SendableChooser<Command> auto_chooser = new SendableChooser<>();
 
+  LinearFilter filterX = LinearFilter.singlePoleIIR(0.04, 0.02);
+  LinearFilter filterY = LinearFilter.singlePoleIIR(0.04, 0.02);
+  LinearFilter filterR = LinearFilter.singlePoleIIR(0.04, 0.02);
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -75,9 +80,9 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                MathUtil.applyDeadband(Math.pow(m_driverController.getRawAxis(0), 2) * Math.signum(m_driverController.getRawAxis(0)), OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(Math.pow(-m_driverController.getRawAxis(1), 2) * Math.signum(-m_driverController.getRawAxis(1)), OIConstants.kDriveDeadband),
-                MathUtil.applyDeadband(Math.pow(-m_driverController.getRawAxis(4), 2) * Math.signum(-m_driverController.getRawAxis(4)), OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(-m_driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+                MathUtil.applyDeadband(-m_driverController.getRawAxis(4), OIConstants.kDriveDeadband),
                 true, false),
             m_robotDrive));
 

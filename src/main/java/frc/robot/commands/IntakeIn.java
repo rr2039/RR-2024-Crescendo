@@ -46,18 +46,17 @@ public class IntakeIn extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shoulder.isHome()) {
+    if (shoulder.isHome() && intake.atFlapperSetpoint()) {
       if (!intake.hasNote()) {
-        intake.moveFlapperToPos(IntakeConstants.flapperGround);
         // This is negative to remove the need to invert spark
-        intake.setIntakeSpeed(-0.75);
+        intake.setIntakeSpeed(-1);
         intake.setBeltSpeed(0.35);
         //LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
       } else {
         //shooter.setIdle();
         intake.setBeltSpeed(0);
         intake.setIntakeSpeed(0); 
-        intake.moveFlapperToPos(IntakeConstants.flapperHome);
+        intake.setFlapperSetpoint(IntakeConstants.flapperHome);
         if (extraRuntime % 5 == 0) {
           driver.setRumble(RumbleType.kBothRumble, 0);
           operator.setRumble(RumbleType.kBothRumble, 0);
@@ -70,6 +69,7 @@ public class IntakeIn extends Command {
       }
     } else {
       shoulder.goHome();
+      intake.setFlapperSetpoint(IntakeConstants.flapperGround);
     }
   }
 
@@ -81,7 +81,7 @@ public class IntakeIn extends Command {
     if (interrupted) {
       intake.setBeltSpeed(0);
       intake.setIntakeSpeed(0); 
-      intake.moveFlapperToPos(IntakeConstants.flapperHome);
+      intake.setFlapperSetpoint(IntakeConstants.flapperHome);
     }
     //LEDEffects.setSolidColor(ledUtil.getStrip(0), Color.kBlack);
   }

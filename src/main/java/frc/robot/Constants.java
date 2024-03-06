@@ -190,7 +190,7 @@ public final class Constants {
     public static final double kTurningEncoderPositionPIDMinInput = 0; // radians
     public static final double kTurningEncoderPositionPIDMaxInput = kTurningEncoderPositionFactor; // radians
 
-    public static final double kDrivingP = 0.04/2;
+    public static final double kDrivingP = 0.02;
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0;
     public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
@@ -213,7 +213,7 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.06;
+    public static final double kDriveDeadband = 0.07;
     public static final int kOperatorControllerPort = 1;
     public static final double kOperatorDeadband = 0.05;
   }
@@ -234,7 +234,7 @@ public final class Constants {
   }
 
   public static final class NeoMotorConstants {
-    public static final double kFreeSpeedRpm = 6000;
+    public static final double kFreeSpeedRpm = 5800;
   }
 
   public static final class VisionConstants {
@@ -243,8 +243,8 @@ public final class Constants {
     public static final double TARGET_HEIGHT_METERS = 1.4351;
     /** Physical location of the apriltag camera on the robot, relative to the center of the robot. */
     public static final Transform3d APRILTAG_CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(-0.32385, 0.1016, 0.17145),
-        new Rotation3d(0.0, degreesToRadians(24.0), degreesToRadians(0.0)));
+        new Translation3d(-0.32385, 0.1016, 0.161925),
+        new Rotation3d(0.0, degreesToRadians(37.5), degreesToRadians(5.0)));
 
     public static final double FIELD_LENGTH_METERS = 16.54175;
     public static final double FIELD_WIDTH_METERS = 8.0137;

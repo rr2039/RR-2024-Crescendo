@@ -174,6 +174,7 @@ public class MAXSwerveModule {
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
     VelocityDutyCycle optimizedSpeed = new VelocityDutyCycle(optimizedDesiredState.speedMetersPerSecond / ModuleConstants.kDrivingEncoderVelocityFactor);
+    optimizedSpeed.EnableFOC = true;
     m_drivingTalonFX.setControl(optimizedSpeed);
     m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 

@@ -59,6 +59,8 @@ public class Shoulder extends SubsystemBase {
 
   boolean manualOverride = false;
 
+  int counter = 0;
+
   /** Creates a new Shoulder. */
   public Shoulder(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
     poseEst = m_poseEst;
@@ -166,8 +168,13 @@ public class Shoulder extends SubsystemBase {
         setShoulderSetpoint(interpolator.getInterpolatedValue(range));
       }
       //setShoulderSetpoint(calculateAngleFromDistance(range));
+      counter = 0;
     } else {
-      goHome();
+      if (counter == (1 * 50)) {
+        goHome();
+      } else {
+        counter++;
+      }
     }
 
     shoulderPos.setDouble(getShoulderPos());

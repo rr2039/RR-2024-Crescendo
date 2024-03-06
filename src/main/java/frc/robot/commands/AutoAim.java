@@ -7,8 +7,12 @@ package frc.robot.commands;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,7 +27,9 @@ public class AutoAim extends Command {
 
   XboxController driverController;
 
-  PIDController turnPID = new PIDController(0, 0, 0);
+  PIDController turnPID = new PIDController(0.4, 0, 0.01);
+
+  AprilTagFieldLayout layout;
 
   /** Creates a new AutoAim. */
   public AutoAim(DriveSubsystem m_drive, PoseEstimatorSubsystem m_poseEst, XboxController m_driveCont) {
@@ -31,13 +37,21 @@ public class AutoAim extends Command {
     poseEst = m_poseEst;
     driverController = m_driveCont;
 
+    turnPID.setTolerance(1);
+
+    layout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    // PV estimates will always be blue, they'll get flipped by robot thread
+    layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    turnPID.setSetpoint(0);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -45,14 +59,16 @@ public class AutoAim extends Command {
     PhotonPipelineResult tag = poseEst.getLatestTag();
     if (tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
       System.out.println(tag.getBestTarget().getYaw());
-      double range = PhotonUtils.calculateDistanceToTargetMeters(
+      /*double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
-                      Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      drive.drive(MathUtil.applyDeadband(Math.pow(driverController.getRawAxis(0), 2) * Math.signum(driverController.getRawAxis(0)), OIConstants.kDriveDeadband) / (range/3),
-            MathUtil.applyDeadband(Math.pow(-driverController.getRawAxis(1), 2) * Math.signum(driverController.getRawAxis(0)), OIConstants.kDriveDeadband) / (range/3),
-            turnPID.calculate(tag.getBestTarget().getYaw()),
+                      Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));*/
+      Rotation2d yaw = PhotonUtils.getYawToPose(poseEst.getCurrentPose(), layout.getTagPose(tag.getBestTarget().getFiducialId()).get().toPose2d());
+      System.out.println(yaw.getDegrees() + ": YawToPose");
+      drive.drive(MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+            MathUtil.applyDeadband(-driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+            turnPID.calculate(-yaw.getRadians()),
             true,
             false);
     }

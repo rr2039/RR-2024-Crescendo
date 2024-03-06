@@ -60,6 +60,8 @@ public class Shooter extends SubsystemBase {
 
   boolean manualOverride = false;
 
+  int counter = 0;
+
   /** Creates a new Shooter. */
   public Shooter(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
     hasNote = m_hasNote;
@@ -157,9 +159,14 @@ public class Shooter extends SubsystemBase {
       if (1 <= range || range <= 5) {
         setShooterSetpoint(interpolator.getInterpolatedValue(range));
       }
+      counter = 0;
       //setShoulderSetpoint(calculateAngleFromDistance(range));
     } else {
-      setShooterSetpoint(0);
+      if (counter == (1 * 50)) {
+        setShooterSetpoint(0);
+      } else {
+        counter++;
+      }
     }
 
     shooterPos.setDouble(getShooterSpeed());

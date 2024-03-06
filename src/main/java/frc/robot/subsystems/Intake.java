@@ -18,6 +18,7 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -39,8 +40,8 @@ public class Intake extends SubsystemBase {
   ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
   private ColorMatch m_colorMatcher = new ColorMatch();
 
-  private DigitalInput intakePhotoEye;
-  Debouncer debounce = new Debouncer(0.075, DebounceType.kBoth);
+  private AnalogInput intakePhotoEye;
+  Debouncer debounce = new Debouncer(0.1, DebounceType.kBoth);
 
   ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake");
   GenericEntry flapperPos;
@@ -96,7 +97,7 @@ public class Intake extends SubsystemBase {
     belt.burnFlash();
     intake.burnFlash();
 
-    intakePhotoEye = new DigitalInput(0);
+    intakePhotoEye = new AnalogInput(0); //new DigitalInput(0);
 
     m_colorMatcher.addColorMatch(IntakeConstants.noteColor);
     m_colorMatcher.addColorMatch(new Color("#7E6619"));
@@ -121,7 +122,7 @@ public class Intake extends SubsystemBase {
       return false;
     }*/
     //return !intakePhotoEye.get();
-    return debounce.calculate(!intakePhotoEye.get());
+    return debounce.calculate(intakePhotoEye.getVoltage() < 1);
   }
 
   public double getFlapperPos() {
@@ -152,11 +153,18 @@ public class Intake extends SubsystemBase {
     return flapperCurSetpoint;
   }
 
+  public boolean atFlapperSetpoint() {
+    return IntakeConstants.flapperGround - 2 <= getFlapperPos() && getFlapperPos() <= IntakeConstants.flapperGround + 2;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     flapperPos.setDouble(getFlapperPos());
     hasNote.setBoolean(hasNote());
+
+    moveFlapperToPos(flapperCurSetpoint);
+    
     //colorSensorRead.setString(colorSensor.getColor().toString());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       flapperSetpoint.setDouble(flapperCurSetpoint);
