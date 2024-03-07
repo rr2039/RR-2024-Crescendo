@@ -164,17 +164,23 @@ public class Shooter extends SubsystemBase {
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
-      System.out.println("Pose Range: " + distanceToTarget);
-      System.out.println("Vision Range: " + range);
+      //System.out.println("Vision Range: " + range);
       if (PoseUtils.inRange(range)) {
-        setShooterSetpoint(interpolator.getInterpolatedValue(range));
+        //setShooterSetpoint(interpolator.getInterpolatedValue(range));
       }
       counter = 0;
       //setShoulderSetpoint(calculateAngleFromDistance(range));
+    } else if (!manualOverride && hasNote.get()) {
+      double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
+      distanceToTarget = (1.47 * distanceToTarget) + -1.46;
+      //System.out.println("Pose Range: " + distanceToTarget);
+      if (PoseUtils.inRange(distanceToTarget)) {
+        //setShooterSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
+      }
+      counter = 0;
     } else {
       if (counter == (1 * 50)) {
-        setShooterSetpoint(0);
+        //setShooterSetpoint(0);
       } else {
         counter++;
       }

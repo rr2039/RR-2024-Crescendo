@@ -59,10 +59,11 @@ public class AutoAim extends Command {
     //if (tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
       Rotation2d yaw = PhotonUtils.getYawToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
       System.out.println(yaw.getDegrees() + ": YawToPose");
-      drive.drive(MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+      drive.powDrive(MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
             MathUtil.applyDeadband(-driverController.getRawAxis(1), OIConstants.kDriveDeadband),
             turnPID.calculate(-yaw.getRadians(), 0),
             true,
+            false,
             false);
     //}
   }

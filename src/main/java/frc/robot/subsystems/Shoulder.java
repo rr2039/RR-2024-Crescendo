@@ -26,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShoulderConstants;
@@ -171,22 +172,29 @@ public class Shoulder extends SubsystemBase {
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
-      System.out.println("Pose Range: " + distanceToTarget);
-      System.out.println("Vision Range: " + range);
+      SmartDashboard.putNumber("Vision Range", range);
       if (PoseUtils.inRange(range)) {
-        setShoulderSetpoint(interpolator.getInterpolatedValue(range));
+        //setShoulderSetpoint(interpolator.getInterpolatedValue(range));
+      }
+      counter = 0;
+    } else if (!manualOverride && hasNote.get()) {
+      double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
+      distanceToTarget = (1.47 * distanceToTarget) + -1.46;
+      SmartDashboard.putNumber("Pose Range", distanceToTarget);
+      if (PoseUtils.inRange(distanceToTarget)) {
+        //setShoulderSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
       }
       counter = 0;
     } else {
       if (counter == (1 * 50)) {
-        goHome();
+        //goHome();
       } else {
         counter++;
       }
     }
 
     shoulderPos.setDouble(getShoulderPos());
+    shoulderSetpoint.setDouble(shoulderCurSetpoint);
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       shoulderSetpoint.setDouble(shoulderCurSetpoint);
       double tempP = shoulderP.getDouble(shoulderPID.getP(0));

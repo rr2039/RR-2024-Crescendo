@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import java.util.Arrays;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -14,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OIConstants;
 import frc.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.kauailabs.navx.frc.AHRS;
@@ -60,8 +63,17 @@ public class DriveSubsystem extends SubsystemBase {
     //Nothing
   }
 
-  public ChassisSpeeds getChassisSpeeds() {
-    return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
+  public void powDrive(double xInput, double yInput, double rotInput, boolean fieldRelative, boolean rateLimit, boolean rotLimit) {
+    double inputTranslationDir = Math.atan2(yInput, xInput);
+    double inputTranslationMag = Math.pow(Math.sqrt(Math.pow(xInput, 2) + Math.pow(yInput, 2)), 3);
+    double xSpeed = Math.cos(inputTranslationDir) * inputTranslationMag;
+    double ySpeed = Math.sin(inputTranslationDir) * inputTranslationMag;
+    double rSpeed = Math.pow(Math.abs(rotInput), 2) * Math.signum(rotInput);
+    drive(
+            xSpeed,
+            ySpeed,
+            (rotLimit ? rSpeed : rotInput),
+            fieldRelative, rateLimit);
   }
 
   /**
