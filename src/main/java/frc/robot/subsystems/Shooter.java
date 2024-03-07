@@ -173,7 +173,7 @@ public class Shooter extends SubsystemBase {
     } else if (!manualOverride && hasNote.get()) {
       double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
       distanceToTarget = (1.47 * distanceToTarget) + -1.46;
-      //System.out.println("Pose Range: " + distanceToTarget);
+      System.out.println("Pose Range: " + distanceToTarget);
       if (PoseUtils.inRange(distanceToTarget)) {
         //setShooterSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
       }
