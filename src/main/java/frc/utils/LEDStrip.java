@@ -19,7 +19,7 @@ public class LEDStrip {
         start = _start;
         stop = _stop;
         invert = _invert;
-        buffer = new AddressableLEDBuffer(stop - start);
+        buffer = new AddressableLEDBuffer((stop - start) + 1);
     }
 
     public int getStart() {

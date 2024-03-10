@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.util.Color;
 public class LEDEffects {
 
     // Team Green
-    public static Color rrGreen = new Color("7CF205");
+    public static Color rrGreen = new Color("#7CF205");
 
     public static void setSolidColor(LEDStrip _strip, Color _color) {
         AddressableLEDBuffer output = new AddressableLEDBuffer(_strip.getLength());

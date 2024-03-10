@@ -36,10 +36,6 @@ public class Intake extends SubsystemBase {
   AbsoluteEncoder flapperEnc;
   SparkPIDController flapperPID;
 
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
-  ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
-  private ColorMatch m_colorMatcher = new ColorMatch();
-
   private AnalogInput intakePhotoEye;
   Debouncer debounce = new Debouncer(0.1, DebounceType.kBoth);
 
@@ -67,6 +63,10 @@ public class Intake extends SubsystemBase {
 
     // This aint working, so screw it.
     //intake.setInverted(true);
+
+    belt.setSmartCurrentLimit(40, 40);
+    flapper.setSmartCurrentLimit(40, 40);
+    intake.setSmartCurrentLimit(40, 40);
 
     flapperEnc = flapper.getAbsoluteEncoder(Type.kDutyCycle);
     flapperEnc.setPositionConversionFactor(240); //TODO: CALCULATE CONVERSION FACTOR
@@ -98,18 +98,6 @@ public class Intake extends SubsystemBase {
     intake.burnFlash();
 
     intakePhotoEye = new AnalogInput(0); //new DigitalInput(0);
-
-    m_colorMatcher.addColorMatch(IntakeConstants.noteColor);
-    m_colorMatcher.addColorMatch(new Color("#7E6619"));
-    m_colorMatcher.addColorMatch(new Color("#876116"));
-    m_colorMatcher.addColorMatch(new Color("#876017"));
-    m_colorMatcher.addColorMatch(new Color("#856117"));
-    m_colorMatcher.addColorMatch(new Color("#8F5C13"));
-    m_colorMatcher.addColorMatch(new Color("#925913"));
-    m_colorMatcher.addColorMatch(new Color("#915A13"));
-    m_colorMatcher.addColorMatch(new Color("#786A1C"));
-    m_colorMatcher.addColorMatch(new Color("#7F6619"));
-    m_colorMatcher.addColorMatch(new Color("#895F16"));
     hasNote = intakeTab.add("Has Note", hasNote()).getEntry();
     //colorSensorRead = intakeTab.add("Color Sensed", colorSensor.getColor().toString()).getEntry();
   }
@@ -122,7 +110,8 @@ public class Intake extends SubsystemBase {
       return false;
     }*/
     //return !intakePhotoEye.get();
-    return debounce.calculate(intakePhotoEye.getVoltage() < 1);
+    //return debounce.calculate(intakePhotoEye.getVoltage() < 1);
+    return false;
   }
 
   public double getFlapperPos() {

@@ -75,13 +75,16 @@ public class Shooter extends SubsystemBase {
     rightShooter = new CANSparkMax(ShooterConstants.rightShooterCanId, MotorType.kBrushless);
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
 
+    rightShooter.restoreFactoryDefaults();
+    leftShooter.restoreFactoryDefaults();
+
+    leftShooter.setSmartCurrentLimit(40, 40);
+    rightShooter.setSmartCurrentLimit(40, 40);
+    
     shooterEnc = rightShooter.getEncoder();
     shooterEnc.setPositionConversionFactor(1); //TODO: CALCULATE CONVERSION FACTOR
     shooterEnc.setVelocityConversionFactor(1);
     shooterPos = shooterTab.add("ShooterPos", getShooterSpeed()).getEntry();
-
-    rightShooter.restoreFactoryDefaults();
-    leftShooter.restoreFactoryDefaults();
 
     leftShooter.follow(rightShooter, true);
 
@@ -134,7 +137,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return (shooterCurSetpoint - 100 <= getShooterSpeed() && getShooterSpeed() <= shooterCurSetpoint + 100) && shooterCurSetpoint > 0;
+    return (shooterCurSetpoint - 50 <= getShooterSpeed() && getShooterSpeed() <= shooterCurSetpoint + 50) && shooterCurSetpoint > 0;
   }
 
   public void setIdle() {
@@ -173,7 +176,7 @@ public class Shooter extends SubsystemBase {
     } else if (!manualOverride && hasNote.get()) {
       double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
       distanceToTarget = (1.47 * distanceToTarget) + -1.46;
-      System.out.println("Pose Range: " + distanceToTarget);
+      //System.out.println("Pose Range: " + distanceToTarget);
       if (PoseUtils.inRange(distanceToTarget)) {
         //setShooterSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
       }

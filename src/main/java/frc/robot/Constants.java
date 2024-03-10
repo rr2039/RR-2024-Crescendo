@@ -104,7 +104,7 @@ public final class Constants {
     public static final int leftShoulderCanId = 22;
     public static final int rightShoulderCanId = 23;
 
-    public static final double shoulderHome = 75;
+    public static final double shoulderHome = 50;
 
     public static final double kShoulderP = 0.05;
     public static final double kShoulderI = 0;
@@ -118,6 +118,8 @@ public final class Constants {
       {3.3, 54},
       {4.5, 51}
     };
+    public static double kMaxVelocity = 1000;
+    public static double kMaxAcceleration = 5000;
   }
 
   public static final class IntakeConstants {
@@ -147,6 +149,9 @@ public final class Constants {
     public static final double kFlipperFF = 0;
 
     public static final double flipperHome = 0;
+
+    public static double kMaxVelocity = 1;
+    public static double kMaxAcceleration = 1;
   }
 
   public static final class ClimberConstants {

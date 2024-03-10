@@ -11,10 +11,12 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
 import frc.robot.autos.Mobility;
 import frc.robot.autos.SPSourceSide;
+import frc.robot.commands.AmpShot;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.Climb;
 import frc.robot.commands.IntakeIn;
@@ -24,10 +26,12 @@ import frc.robot.commands.ShooterOn;
 import frc.robot.commands.ShoulderSetPos;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Flipper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
 import frc.utils.PoseEstimatorSubsystem;
+import frc.utils.LEDEffects;
 import frc.utils.LEDStrip;
 import frc.utils.LEDUtility;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -50,6 +54,7 @@ public class RobotContainer {
   private final Shoulder m_shoulder = new Shoulder(m_intake::hasNote, m_poseEst);
   private final Shooter m_shooter = new Shooter(m_intake::hasNote, m_poseEst);
   private final Climber m_climber = new Climber();
+  private final Flipper m_flipper = new Flipper();
 
   public LEDUtility m_ledUtil = new LEDUtility(0);
 
@@ -68,7 +73,15 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_ledUtil.addStrip(new LEDStrip(1, 8, false)); 
+    m_shoulder.enable();
+    
+    m_ledUtil.addStrip(new LEDStrip(0, 15, false)); // Shoulder Left
+    m_ledUtil.addStrip(new LEDStrip(16, 51, false)); // Shooter Left 1
+    m_ledUtil.addStrip(new LEDStrip(52, 87, true)); // Shooter Left 2
+    m_ledUtil.addStrip(new LEDStrip(88, 123, false)); // Shooter Right 1
+    m_ledUtil.addStrip(new LEDStrip(124, 159, true)); // Shooter Right 2
+    m_ledUtil.addStrip(new LEDStrip(160, 175, false)); // Shoulder Right
+    m_ledUtil.addStrip(new LEDStrip(176, 217, false)); // Under Glow
 
     // Configure the button bindings
     configureButtonBindings();
@@ -132,6 +145,8 @@ public class RobotContainer {
         .whileTrue(new Climb(m_climber, m_shoulder, false));
     new POVButton(m_operatorController, 270)
         .whileTrue(new ShooterOn(m_shooter, m_shoulder, m_driverController));
+    new POVButton(m_operatorController, 90)
+        .whileTrue(new AmpShot(m_shooter, m_shoulder, m_driverController));
     new POVButton(m_operatorController, 0)
         .onTrue(new ShoulderSetPos(m_shoulder, true));
     new POVButton(m_operatorController, 180)

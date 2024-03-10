@@ -17,29 +17,41 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import frc.utils.PoseUtils;
 import org.photonvision.PhotonUtils;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.utils.LinearInterpolator;
 import frc.utils.PoseEstimatorSubsystem;
 
-public class Shoulder extends SubsystemBase {
+public class Shoulder extends ProfiledPIDSubsystem {
 
   CANSparkMax leftShoulder;
   CANSparkMax rightShoulder;
-  AbsoluteEncoder shoulderEnc;
   SparkPIDController shoulderPID;
+
+  Encoder relative = new Encoder(1, 2);
+  DutyCycleEncoder absolute = new DutyCycleEncoder(0);
+  // Old Conv Factor 123.71
 
   ShuffleboardTab shoulderTab = Shuffleboard.getTab("Shoulder");
   GenericEntry shoulderPos;
@@ -48,6 +60,8 @@ public class Shoulder extends SubsystemBase {
   GenericEntry shoulderI;
   GenericEntry shoulderD;
   GenericEntry shoulderFF;
+  GenericEntry busVoltage;
+  GenericEntry appliedOutput;
 
   double shoulderCurSetpoint = ShoulderConstants.shoulderHome;
 
@@ -57,7 +71,7 @@ public class Shoulder extends SubsystemBase {
 
   SlewRateLimiter shoulderSlew = new SlewRateLimiter(60);
 
-  ArmFeedforward feedforward;
+  ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
 
   Supplier<Boolean> hasNote;
 
@@ -67,12 +81,22 @@ public class Shoulder extends SubsystemBase {
 
   int counter = 0;
 
+  double shoulderOffset = 0;
+
   /** Creates a new Shoulder. */
   public Shoulder(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
+    super(
+        new ProfiledPIDController(
+            ShoulderConstants.kShoulderP,
+            0,
+            0,
+            new TrapezoidProfile.Constraints(
+                ShoulderConstants.kMaxVelocity,
+                ShoulderConstants.kMaxAcceleration)),
+        ShoulderConstants.shoulderHome);
+
     poseEst = m_poseEst;
     hasNote = m_hasNote;
-
-    feedforward = new ArmFeedforward(0, 0.75, 0, 0);
 
     leftShoulder = new CANSparkMax(ShoulderConstants.leftShoulderCanId, MotorType.kBrushless);
     rightShoulder = new CANSparkMax(ShoulderConstants.rightShoulderCanId, MotorType.kBrushless);
@@ -80,32 +104,16 @@ public class Shoulder extends SubsystemBase {
     rightShoulder.restoreFactoryDefaults();
     leftShoulder.restoreFactoryDefaults();
 
-    shoulderEnc = leftShoulder.getAbsoluteEncoder(Type.kDutyCycle);
-    shoulderEnc.setInverted(true);
-    shoulderEnc.setPositionConversionFactor(123.71);
-    shoulderEnc.setVelocityConversionFactor(1);
-    shoulderPos = shoulderTab.add("ShoulderPos", getShoulderPos()).getEntry();
-
-    leftShoulder.setSoftLimit(SoftLimitDirection.kForward, 33);
-    leftShoulder.setSoftLimit(SoftLimitDirection.kReverse, 112);
+    rightShoulder.setSmartCurrentLimit(40, 40);
+    leftShoulder.setSmartCurrentLimit(40, 40);
 
     rightShoulder.follow(leftShoulder, true);
 
     rightShoulder.setIdleMode(IdleMode.kBrake);
     leftShoulder.setIdleMode(IdleMode.kBrake);
-
-    shoulderPID = leftShoulder.getPIDController();
-    shoulderPID.setFeedbackDevice(shoulderEnc);
-    shoulderPID.setP(ShoulderConstants.kShoulderP, 0);
-    shoulderP = shoulderTab.add("ShoulderP", shoulderPID.getP(0)).getEntry();
-    shoulderPID.setI(ShoulderConstants.kShoulderI, 0);
-    shoulderI = shoulderTab.add("ShoulderI", shoulderPID.getI(0)).getEntry();
-    shoulderPID.setD(ShoulderConstants.kShoulderD, 0);
-    shoulderD = shoulderTab.add("ShoulderD", shoulderPID.getD(0)).getEntry();
-    shoulderPID.setFF(ShoulderConstants.kShoulderFF, 0);
-    shoulderFF = shoulderTab.add("ShoulderFF", shoulderPID.getFF(0)).getEntry();
     
     shoulderSetpoint = shoulderTab.add("ShoulderSetpoint", shoulderCurSetpoint).getEntry();
+    shoulderPos = shoulderTab.add("Shoulder Pos", getShoulderPos()).getEntry();
 
     rightShoulder.burnFlash();
     leftShoulder.burnFlash();
@@ -113,14 +121,28 @@ public class Shoulder extends SubsystemBase {
     layout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     // PV estimates will always be blue, they'll get flipped by robot thread
     layout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+
+    relative.reset();
+    relative.setDistancePerPulse(123.71/2048);
+    absolute.setDutyCycleRange(1/1025, 1025/1025);
+    absolute.setDistancePerRotation(123.71);
+    //absolute.setPositionOffset(15);
+    shoulderOffset = ((1 - absolute.getAbsolutePosition()) * 123.71) + 7.195;
+    System.out.println(shoulderOffset);
+
+    setGoal(shoulderCurSetpoint);
+    m_controller.reset(getShoulderPos());
+
+    appliedOutput = shoulderTab.add("AppliedOutput", leftShoulder.getAppliedOutput()).getEntry();
+    busVoltage = shoulderTab.add("BusVoltage", leftShoulder.getBusVoltage()).getEntry();
   }
 
   public double getShoulderPos() {
-    return shoulderEnc.getPosition();
+    return relative.getDistance() + shoulderOffset;
   }
 
   public boolean isHome() {
-    return ShoulderConstants.shoulderHome - 2 <= shoulderEnc.getPosition() && shoulderEnc.getPosition() <= ShoulderConstants.shoulderHome + 1 ;
+    return ShoulderConstants.shoulderHome - 2 <= getShoulderPos() && getShoulderPos() <= ShoulderConstants.shoulderHome + 2 ;
  }
 
   public void goHome() {
@@ -132,8 +154,15 @@ public class Shoulder extends SubsystemBase {
   }
 
   public void moveShoulderToPos(double degrees) {
-    shoulderPID.setReference(shoulderSlew.calculate(degrees), ControlType.kPosition);
+    //shoulderPID.setReference(shoulderSlew.calculate(degrees), ControlType.kPosition);
     //shoulderPID.setReference(degrees, ControlType.kPosition);
+    if (degrees > 135) { 
+      degrees = 135;
+    }
+    if (degrees < 15) {
+      degrees = 15;
+    }
+    setGoal(degrees);
   }
 
   public void setShoulderSetpoint(double setpoint) {
@@ -165,6 +194,7 @@ public class Shoulder extends SubsystemBase {
     // This method will be called once per scheduler run
 
     moveShoulderToPos(shoulderCurSetpoint);
+    useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
 
     if (!manualOverride && hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
@@ -195,24 +225,10 @@ public class Shoulder extends SubsystemBase {
 
     shoulderPos.setDouble(getShoulderPos());
     shoulderSetpoint.setDouble(shoulderCurSetpoint);
+    busVoltage.setDouble(leftShoulder.getBusVoltage());
+    appliedOutput.setDouble(leftShoulder.getAppliedOutput());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
-      shoulderSetpoint.setDouble(shoulderCurSetpoint);
-      double tempP = shoulderP.getDouble(shoulderPID.getP(0));
-      if (shoulderPID.getP(0) != tempP) {
-        shoulderPID.setP(tempP, 0);
-      }
-      double tempI = shoulderI.getDouble(shoulderPID.getI(0));
-      if (shoulderPID.getI(0) != tempI) {
-        shoulderPID.setI(tempI, 0);
-      }
-      double tempD = shoulderD.getDouble(shoulderPID.getD(0));
-      if (shoulderPID.getD(0) != tempD) {
-        shoulderPID.setD(tempD, 0);
-      }
-      double tempFF = shoulderFF.getDouble(shoulderPID.getFF(0));
-      if (shoulderPID.getFF(0) != tempFF) {
-        shoulderPID.setFF(tempFF, 0);
-      }
+      //shoulderSetpoint.setDouble(shoulderCurSetpoint);
       double tempSetpoint = shoulderSetpoint.getDouble(shoulderCurSetpoint);
       if (shoulderCurSetpoint != tempSetpoint) {
         setShoulderSetpoint(tempSetpoint);
@@ -223,4 +239,23 @@ public class Shoulder extends SubsystemBase {
   private boolean isSpeakerTag(double tag) {
     return (tag == 7 || tag == 4);
   }
+
+  @Override
+  protected void useOutput(double output, State setpoint) {
+    double ff = feedforward.calculate(setpoint.position, setpoint.velocity);
+    //System.out.println(output + " " + setpoint.position + " " + setpoint.velocity);
+    leftShoulder.set(output + ff);
+  }
+
+  @Override
+  protected double getMeasurement() {
+    return getShoulderPos();
+  }
+
+  /*@Override
+  protected void useState(State state) {
+    feedforward.calculate(state.position, state.velocity);
+    //setShoulderSetpoint(state.position);
+    shoulderPID.setReference(shoulderSlew.calculate(state.position), ControlType.kPosition);
+  }*/
 }
