@@ -118,6 +118,7 @@ public final class Constants {
       {3.3, 54},
       {4.5, 51}
     };
+
     public static double kMaxVelocity = 1000;
     public static double kMaxAcceleration = 5000;
   }
@@ -137,6 +138,9 @@ public final class Constants {
     public static final double kFlapperI = 0;
     public static final double kFlapperD = 0;
     public static final double kFlapperFF = 0;
+
+    public static double kMaxVelocity = 1;
+    public static double kMaxAcceleration = 1;
   }
 
   public static final class FlipperConstants {

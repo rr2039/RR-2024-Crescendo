@@ -6,12 +6,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
+import frc.utils.LEDEffects;
 import frc.utils.LEDUtility;
+import frc.utils.LEDEffects.LEDEffect;
 
 // Move flap to ground pos
 
@@ -52,6 +55,7 @@ public class IntakeIn extends Command {
         intake.setIntakeSpeed(-1);
         intake.setBeltSpeed(0.35);
         //LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
+        ledUtil.setAll(LEDEffect.SOLID, Color.kFirstRed);
       } else {
         //shooter.setIdle();
         intake.setBeltSpeed(0);
@@ -65,6 +69,7 @@ public class IntakeIn extends Command {
           operator.setRumble(RumbleType.kBothRumble, 1);
         }
         //LEDEffects.setFlashing(ledUtil.getStrip(0), LEDEffects.rrGreen, 10);
+        ledUtil.setAll(LEDEffect.FLASH, LEDEffects.rrGreen);
         extraRuntime++;
       }
     } else {
@@ -84,6 +89,7 @@ public class IntakeIn extends Command {
       intake.setFlapperSetpoint(IntakeConstants.flapperHome);
     }
     //LEDEffects.setSolidColor(ledUtil.getStrip(0), Color.kBlack);
+    ledUtil.setDefault();
   }
 
   // Returns true when the command should end.

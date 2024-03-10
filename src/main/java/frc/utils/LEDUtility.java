@@ -8,8 +8,11 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.utils.LEDEffects.LEDEffect;
 
 public class LEDUtility extends SubsystemBase {
   AddressableLED addressableLED;
@@ -33,22 +36,76 @@ public class LEDUtility extends SubsystemBase {
     return ledStrips.get(index);
   }
 
+  public void setAll(LEDEffect _effect, Color _color) {
+    ledStrips.forEach(strip -> {
+      strip.setColor(_color);
+      strip.setEffect(_effect);
+    });
+  }
+
+  public void setAll(LEDEffect _effect) {
+    ledStrips.forEach(strip -> {
+      strip.setEffect(_effect);
+    });
+  }
+
+  // DEFAULT LED PATTERN, CHANGE PER SEASON
+  public void setDefault() {
+    getStrip(0).setColor(getAlliance());
+    getStrip(0).setEffect(LEDEffect.SOLID);
+    getStrip(1).setColor(LEDEffects.rrGreen);
+    getStrip(1).setEffect(LEDEffect.CHASING);
+    getStrip(2).setColor(LEDEffects.rrGreen);
+    getStrip(2).setEffect(LEDEffect.CHASING);
+    getStrip(3).setColor(LEDEffects.rrGreen);
+    getStrip(3).setEffect(LEDEffect.CHASING);
+    getStrip(4).setColor(LEDEffects.rrGreen);
+    getStrip(4).setEffect(LEDEffect.CHASING);
+    getStrip(5).setColor(getAlliance());
+    getStrip(5).setEffect(LEDEffect.SOLID);
+    getStrip(6).setEffect(LEDEffect.RAINBOW);
+  }
+
   private void setLength() {
     filler = new AddressableLEDBuffer(overallLength);
     addressableLED.setLength(overallLength);
   }
 
+  private Color getAlliance() {
+    return DriverStation.getAlliance().get() == Alliance.Blue ? Color.kFirstBlue : Color.kFirstRed;
+  }
+
+  private void setStrip(LEDStrip _strip) {
+    switch (_strip.getEffect()) {
+      case SOLID:
+        LEDEffects.setSolidColor(_strip);
+        break;
+      case RAINBOW:
+        LEDEffects.setRainbow(_strip);
+        break;
+      case RSL:
+        LEDEffects.setRSLFlashing(_strip);
+        break;
+      case FLASH:
+        LEDEffects.setFlashing(_strip, 50);
+        break;
+      case PULSE:
+        LEDEffects.setPulsing(_strip, 50);
+        break;
+      case CHASING:
+        LEDEffects.setChasing(_strip, 5);
+        break;
+      default:
+        LEDEffects.setSolidColor(_strip);
+        break;
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    //LEDEffects.setRainbow(this.getStrip(0));//, Color.kGreen, 5);
-    //LEDEffects.setRainbow(this.getStrip(1));//, Color.kGreen, 5);
-    //LEDEffects.setRainbow(this.getStrip(2));//, Color.kGreen, 5);
-    //LEDEffects.setRainbow(this.getStrip(3));//, Color.kGreen, 5);
-    //LEDEffects.setRainbow(this.getStrip(4));//, Color.kGreen, 5);
-    //LEDEffects.setRainbow(this.getStrip(5));//, Color.kGreen, 5);
-    //LEDEffects.setRainbow(this.getStrip(6));//, Color.kGreen, 5);
     ledStrips.forEach(strip -> {
+      setStrip(strip);
       for(int i = strip.getStart(); i <= strip.getStop(); i++) {
         filler.setLED(i, strip.getIndex(i - strip.getStart()));
       }

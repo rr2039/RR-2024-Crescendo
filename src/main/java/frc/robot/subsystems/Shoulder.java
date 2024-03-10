@@ -251,11 +251,4 @@ public class Shoulder extends ProfiledPIDSubsystem {
   protected double getMeasurement() {
     return getShoulderPos();
   }
-
-  /*@Override
-  protected void useState(State state) {
-    feedforward.calculate(state.position, state.velocity);
-    //setShoulderSetpoint(state.position);
-    shoulderPID.setReference(shoulderSlew.calculate(state.position), ControlType.kPosition);
-  }*/
 }
