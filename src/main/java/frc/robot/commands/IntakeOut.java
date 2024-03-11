@@ -28,14 +28,13 @@ public class IntakeOut extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shoulder.isHome() && intake.atFlapperSetpoint()) {
-      intake.setFlapperSetpoint(IntakeConstants.flapperGround);
+    if (shoulder.isHome() && intake.atGround()) {
       // Positive so we dont have to invert the spark
       intake.setIntakeSpeed(0.75);
       intake.setBeltSpeed(-0.25);
     } else {
       shoulder.goHome();
-      intake.setFlapperSetpoint(IntakeConstants.flapperGround);
+      intake.goToGround();;
     }
   }
 
@@ -44,7 +43,7 @@ public class IntakeOut extends Command {
   public void end(boolean interrupted) {
     intake.setBeltSpeed(0);
     intake.setIntakeSpeed(0); 
-    intake.setFlapperSetpoint(IntakeConstants.flapperHome);
+    intake.goHome();
   }
 
   // Returns true when the command should end.

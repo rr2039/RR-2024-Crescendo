@@ -33,12 +33,12 @@ public class AmpShot extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.setShooterSetpoint(400);
+    shooter.setShooterSetpoint(380);
     if (shooter.atSetpoint()) {
       driver.setRumble(RumbleType.kBothRumble, 1);
     }
     //shooter.setShooter(0.35);
-    shoulder.setShoulderSetpoint(85);
+    shoulder.setShoulderSetpoint(65);
   }
 
   // Called once the command ends or is interrupted.

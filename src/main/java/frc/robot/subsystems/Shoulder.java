@@ -10,6 +10,8 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import static edu.wpi.first.math.util.Units.degreesToRadians;
+
 import java.util.function.Supplier;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -71,7 +73,7 @@ public class Shoulder extends ProfiledPIDSubsystem {
 
   SlewRateLimiter shoulderSlew = new SlewRateLimiter(60);
 
-  ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
+  ArmFeedforward feedforward = new ArmFeedforward(0, 0.4625, 0, 0);
 
   Supplier<Boolean> hasNote;
 
@@ -242,9 +244,9 @@ public class Shoulder extends ProfiledPIDSubsystem {
 
   @Override
   protected void useOutput(double output, State setpoint) {
-    double ff = feedforward.calculate(setpoint.position, setpoint.velocity);
+    double ff = feedforward.calculate(degreesToRadians(setpoint.position + 7.46), setpoint.velocity);
     //System.out.println(output + " " + setpoint.position + " " + setpoint.velocity);
-    leftShoulder.set(output + ff);
+    leftShoulder.setVoltage(output + ff);
   }
 
   @Override

@@ -33,7 +33,7 @@ public class ShooterOn extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.setShooterSetpoint(1700); // 400
+    shooter.setShooterSetpoint(1200); // 400
     if (shooter.atSetpoint()) {
       driver.setRumble(RumbleType.kBothRumble, 1);
     }

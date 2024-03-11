@@ -51,8 +51,7 @@ public class LEDUtility extends SubsystemBase {
 
   // DEFAULT LED PATTERN, CHANGE PER SEASON
   public void setDefault() {
-    getStrip(0).setColor(getAlliance());
-    getStrip(0).setEffect(LEDEffect.SOLID);
+    getStrip(0).setEffect(LEDEffect.ALLIANCE);
     getStrip(1).setColor(LEDEffects.rrGreen);
     getStrip(1).setEffect(LEDEffect.CHASING);
     getStrip(2).setColor(LEDEffects.rrGreen);
@@ -61,8 +60,7 @@ public class LEDUtility extends SubsystemBase {
     getStrip(3).setEffect(LEDEffect.CHASING);
     getStrip(4).setColor(LEDEffects.rrGreen);
     getStrip(4).setEffect(LEDEffect.CHASING);
-    getStrip(5).setColor(getAlliance());
-    getStrip(5).setEffect(LEDEffect.SOLID);
+    getStrip(5).setEffect(LEDEffect.ALLIANCE);
     getStrip(6).setEffect(LEDEffect.RAINBOW);
   }
 
@@ -87,13 +85,16 @@ public class LEDUtility extends SubsystemBase {
         LEDEffects.setRSLFlashing(_strip);
         break;
       case FLASH:
-        LEDEffects.setFlashing(_strip, 50);
+        LEDEffects.setFlashing(_strip, 5);
         break;
       case PULSE:
         LEDEffects.setPulsing(_strip, 50);
         break;
       case CHASING:
         LEDEffects.setChasing(_strip, 5);
+        break;
+      case ALLIANCE:
+        LEDEffects.setAllianceColor(_strip);
         break;
       default:
         LEDEffects.setSolidColor(_strip);
@@ -104,13 +105,17 @@ public class LEDUtility extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    ledStrips.forEach(strip -> {
-      setStrip(strip);
-      for(int i = strip.getStart(); i <= strip.getStop(); i++) {
-        filler.setLED(i, strip.getIndex(i - strip.getStart()));
-      }
-    });
-    addressableLED.setData(filler);
-    addressableLED.start();
+    try {
+      ledStrips.forEach(strip -> {
+        setStrip(strip);
+        for(int i = strip.getStart(); i <= strip.getStop(); i++) {
+          filler.setLED(i, strip.getIndex(i - strip.getStart()));
+        }
+      });
+      addressableLED.setData(filler);
+      addressableLED.start();
+    } catch (Exception e) {
+      System.out.println("LED EXception: " + e);
+    }
   }
 }

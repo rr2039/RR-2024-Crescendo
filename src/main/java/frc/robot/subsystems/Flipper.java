@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.math.util.Units.degreesToRadians;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -44,26 +46,30 @@ public class Flipper extends ProfiledPIDSubsystem {
 
   double flipperCurSetpoint = FlipperConstants.flipperHome;
 
-  ArmFeedforward feedforward = new ArmFeedforward(0, 0.75, 0, 0);
+  ArmFeedforward feedforward = new ArmFeedforward(0, -2.44, 0, 0);
+
+  Shoulder shoulder;
 
   /** Creates a new Flipper. */
-  public Flipper() {
+  public Flipper(Shoulder m_shoulder) {
     super(
         new ProfiledPIDController(
             FlipperConstants.kFlipperP,
             0,
-            0,
+            FlipperConstants.kFlipperD,
             new TrapezoidProfile.Constraints(
                 FlipperConstants.kMaxVelocity,
                 FlipperConstants.kMaxAcceleration)),
         0);
+
+    shoulder = m_shoulder;
 
     flipper = new CANSparkMax(FlipperConstants.flipperCanId, MotorType.kBrushless);
     
     flipper.restoreFactoryDefaults();
 
     flipperEnc = flipper.getAlternateEncoder(8192);
-    flipperEnc.setPositionConversionFactor(4); //TODO: CALCULATE CONVERSION FACTOR
+    flipperEnc.setPositionConversionFactor(90); //TODO: CALCULATE CONVERSION FACTOR
     flipperPos = flipperTab.add("FlipperPos", getFlipperPos()).getEntry();
 
     flipper.setSoftLimit(SoftLimitDirection.kForward, 90);
@@ -108,6 +114,10 @@ public class Flipper extends ProfiledPIDSubsystem {
     flipperPos.setDouble(getFlipperPos());
     busVoltage.setDouble(flipper.getBusVoltage());
     appliedOutput.setDouble(flipper.getAppliedOutput());
+
+    moveFlipperToPos(flipperCurSetpoint);
+    useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
+
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       flipperSetpoint.setDouble(flipperCurSetpoint);
       double tempSetpoint = flipperSetpoint.getDouble (flipperCurSetpoint);
@@ -119,7 +129,7 @@ public class Flipper extends ProfiledPIDSubsystem {
 
   @Override
   protected void useOutput(double output, State setpoint) {
-    double ff = feedforward.calculate(setpoint.position, setpoint.velocity);
+    double ff = feedforward.calculate(degreesToRadians(setpoint.position + shoulder.getShoulderPos() - 83.0), setpoint.velocity);
     flipper.setVoltage(output + ff);
   }
 

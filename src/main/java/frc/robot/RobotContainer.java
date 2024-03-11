@@ -54,7 +54,7 @@ public class RobotContainer {
   private final Shoulder m_shoulder = new Shoulder(m_intake::hasNote, m_poseEst);
   private final Shooter m_shooter = new Shooter(m_intake::hasNote, m_poseEst);
   private final Climber m_climber = new Climber();
-  private final Flipper m_flipper = new Flipper();
+  //private final Flipper m_flipper = new Flipper(m_shoulder);
 
   public LEDUtility m_ledUtil = new LEDUtility(0);
 
@@ -72,9 +72,7 @@ public class RobotContainer {
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer() {
-    m_shoulder.enable();
-    
+  public RobotContainer() {    
     m_ledUtil.addStrip(new LEDStrip(0, 15, false)); // Shoulder Left
     m_ledUtil.addStrip(new LEDStrip(16, 51, false)); // Shooter Left 1
     m_ledUtil.addStrip(new LEDStrip(52, 87, true)); // Shooter Left 2
@@ -82,11 +80,11 @@ public class RobotContainer {
     m_ledUtil.addStrip(new LEDStrip(124, 159, true)); // Shooter Right 2
     m_ledUtil.addStrip(new LEDStrip(160, 175, false)); // Shoulder Right
     m_ledUtil.addStrip(new LEDStrip(176, 217, false)); // Under Glow
+    m_ledUtil.setDefault();
 
     // Configure the button bindings
     configureButtonBindings();
     
-
     // Configure default commands
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.

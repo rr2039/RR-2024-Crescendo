@@ -45,7 +45,9 @@ public class Intake extends ProfiledPIDSubsystem {
   DutyCycleEncoder flapperAbs = new DutyCycleEncoder(3);
   // 240 Old Value Conversion
 
-  private AnalogInput intakePhotoEye;
+  DigitalInput queuePhotoEye = new DigitalInput(7);
+  DigitalInput intakePhotoEye = new DigitalInput(6);
+
   Debouncer debounce = new Debouncer(0.1, DebounceType.kBoth);
 
   ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake");
@@ -56,7 +58,10 @@ public class Intake extends ProfiledPIDSubsystem {
   GenericEntry flapperD;
   GenericEntry flapperFF;
   GenericEntry hasNote;
+  GenericEntry intakingNote;
   GenericEntry colorSensorRead;
+  GenericEntry busVoltage;
+  GenericEntry appliedOutput;
 
   double flapperCurSetpoint =  IntakeConstants.flapperHome;
 
@@ -85,9 +90,9 @@ public class Intake extends ProfiledPIDSubsystem {
     // This aint working, so screw it.
     //intake.setInverted(true);
 
-    belt.setSmartCurrentLimit(40, 40);
+    //belt.setSmartCurrentLimit(40, 40);
     flapper.setSmartCurrentLimit(40, 40);
-    intake.setSmartCurrentLimit(40, 40);
+    //intake.setSmartCurrentLimit(40, 40);
     flapperPos = intakeTab.add("FlapperPos", getFlapperPos()).getEntry();
 
     flapper.setIdleMode(IdleMode.kBrake);
@@ -100,31 +105,33 @@ public class Intake extends ProfiledPIDSubsystem {
     belt.burnFlash();
     intake.burnFlash();
 
-    intakePhotoEye = new AnalogInput(0); //new DigitalInput(0);
     hasNote = intakeTab.add("Has Note", hasNote()).getEntry();
+    intakingNote = intakeTab.add("Intaking Note", intakingNote()).getEntry();
     //colorSensorRead = intakeTab.add("Color Sensed", colorSensor.getColor().toString()).getEntry();
 
-    flapperRel.reset();
-    flapperRel.setDistancePerPulse(240/2048);
+    //flapperRel.reset();
+    flapperRel.setDistancePerPulse(240.0/2048.0);
+    flapperRel.setReverseDirection(true);
     flapperAbs.setDutyCycleRange(1/1025, 1025/1025);
     flapperAbs.setDistancePerRotation(240);
     //absolute.setPositionOffset(15);
-    flapperOffset = ((1 - flapperAbs.getAbsolutePosition()) * 240) + 0;
+    flapperOffset = ((flapperAbs.getAbsolutePosition()) * 240) - 83;
     System.out.println(flapperOffset);
 
     m_controller.reset(getFlapperPos());
+
+    appliedOutput = intakeTab.add("AppliedOutput", flapper.getAppliedOutput()).getEntry();
+    busVoltage = intakeTab.add("BusVoltage", flapper.getBusVoltage()).getEntry();
   }
 
   public boolean hasNote() {
-    /*ColorMatchResult sensed = m_colorMatcher.matchColor(colorSensor.getColor());
-    if (sensed != null) {
-      return true;
-    } else {
-      return false;
-    }*/
     //return !intakePhotoEye.get();
     //return debounce.calculate(intakePhotoEye.getVoltage() < 1);
-    return false;
+    return !queuePhotoEye.get();
+  }
+
+  public boolean intakingNote() {
+    return intakePhotoEye.get();
   }
 
   public double getFlapperPos() {
@@ -146,11 +153,11 @@ public class Intake extends ProfiledPIDSubsystem {
 
   public void moveFlapperToPos(double degrees) {
     //flapperPID.setReference(degrees, ControlType.kPosition);
-    if (degrees < 0) {
-      degrees = 0;
+    if (degrees < IntakeConstants.flapperHome) {
+      degrees = IntakeConstants.flapperHome;
     }
-    if (degrees > 45) {
-      degrees = 45;
+    if (degrees > IntakeConstants.flapperGround) {
+      degrees = IntakeConstants.flapperGround;
     }
     setGoal(degrees);
   }
@@ -163,8 +170,16 @@ public class Intake extends ProfiledPIDSubsystem {
     return flapperCurSetpoint;
   }
 
-  public boolean atFlapperSetpoint() {
+  public boolean atGround() {
     return IntakeConstants.flapperGround - 2 <= getFlapperPos() && getFlapperPos() <= IntakeConstants.flapperGround + 2;
+  }
+
+  public void goToGround() {
+    flapperCurSetpoint = IntakeConstants.flapperGround;
+  }
+
+  public void goHome() {
+    flapperCurSetpoint = IntakeConstants.flapperHome;
   }
 
   @Override
@@ -172,9 +187,14 @@ public class Intake extends ProfiledPIDSubsystem {
     // This method will be called once per scheduler run
     flapperPos.setDouble(getFlapperPos());
     hasNote.setBoolean(hasNote());
+    intakingNote.setBoolean(intakingNote());
+    flapperSetpoint.setDouble(flapperCurSetpoint);
+    busVoltage.setDouble(flapper.getBusVoltage());
+    appliedOutput.setDouble(flapper.getAppliedOutput());
 
-    //moveFlapperToPos(flapperCurSetpoint);
-    //useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
+
+    moveFlapperToPos(flapperCurSetpoint);
+    useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
     
     //colorSensorRead.setString(colorSensor.getColor().toString());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
@@ -188,7 +208,7 @@ public class Intake extends ProfiledPIDSubsystem {
 
   @Override
   protected void useOutput(double output, State setpoint) {
-    flapper.set(output);
+    flapper.setVoltage(output);
   }
 
   @Override

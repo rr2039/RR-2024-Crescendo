@@ -19,7 +19,8 @@ public class LEDEffects {
         RSL,
         FLASH,
         PULSE,
-        CHASING
+        CHASING,
+        ALLIANCE
     }
 
     // Team Green
@@ -133,5 +134,14 @@ public class LEDEffects {
         _strip.setHelperPos(i);
         output.setLED(i, _strip.getColor());
         _strip.setBuffer(output);
+    }
+
+    public static void setAllianceColor(LEDStrip _strip) {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            setSolidColor(_strip, (alliance.get() == Alliance.Blue ? Color.kFirstBlue : Color.kFirstRed));
+        } else {
+            setSolidColor(_strip, Color.kFirstBlue);
+        }
     }
 }

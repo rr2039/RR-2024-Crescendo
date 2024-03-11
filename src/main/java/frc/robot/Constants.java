@@ -92,10 +92,17 @@ public final class Constants {
 
     public static final double[][] shooterData = {
       {1.2, 1200},
-      {2.0, 1200},
-      {3.0, 1500},
-      {3.3, 1550},
-      {4.5, 1700}
+      {1.22, 1200},
+      {1.49, 1200},
+      {1.87, 1200},
+      {2, 1200},
+      {2.6, 1400},
+      {3, 1500},
+      {3.33, 1550},
+      {4.03, 1600},
+      {4.5, 1700},
+      {4.75, 1700},
+      {5.1, 1700}
     };
   }
 
@@ -106,21 +113,28 @@ public final class Constants {
 
     public static final double shoulderHome = 50;
 
-    public static final double kShoulderP = 0.05;
+    public static final double kShoulderP = (0.05*12.0);
     public static final double kShoulderI = 0;
     public static final double kShoulderD = 0;
     public static final double kShoulderFF = 0;
 
     public static final double[][] shoulderData = {
-      {1.2,80},
-      {2.0, 70},
-      {3.0, 57},
-      {3.3, 54},
-      {4.5, 51}
+      {1.2, 60.4},
+      {1.22, 60.4},
+      {1.49, 54.9},
+      {1.87, 50.9},
+      {2, 50.4},
+      {2.6, 42.9},
+      {3, 37.4},
+      {3.33, 34.4},
+      {4.03, 31.4},
+      {4.5, 31.4},
+      {4.75, 29.4},
+      {5.1, 28.4}
     };
 
-    public static double kMaxVelocity = 1000;
-    public static double kMaxAcceleration = 5000;
+    public static double kMaxVelocity = 215;
+    public static double kMaxAcceleration = 4000;
   }
 
   public static final class IntakeConstants {
@@ -129,33 +143,33 @@ public final class Constants {
     public static final int flapperCanId = 25;
     public static final int intakeCanId = 26;
 
-    public static final double flapperHome = 24;
-    public static final double flapperGround = 60;
+    public static final double flapperHome = 0;
+    public static final double flapperGround = 27;
 
     public static final Color noteColor = new Color("#8B5D15");
 
-    public static final double kFlapperP = 0.01;
+    public static final double kFlapperP = (0.035*12.0);
     public static final double kFlapperI = 0;
     public static final double kFlapperD = 0;
     public static final double kFlapperFF = 0;
 
-    public static double kMaxVelocity = 1;
-    public static double kMaxAcceleration = 1;
+    public static double kMaxVelocity = 100;
+    public static double kMaxAcceleration = 1000;
   }
 
   public static final class FlipperConstants {
     //SPARK MAX CAN IDs
     public static final int flipperCanId = 27;
 
-    public static final double kFlipperP = 0;
+    public static final double kFlipperP = 0.5;
     public static final double kFlipperI = 0;
-    public static final double kFlipperD = 0;
+    public static final double kFlipperD = 0.1;
     public static final double kFlipperFF = 0;
 
-    public static final double flipperHome = 0;
+    public static final double flipperHome = 90;
 
-    public static double kMaxVelocity = 1;
-    public static double kMaxAcceleration = 1;
+    public static double kMaxVelocity = 10;
+    public static double kMaxAcceleration = 10;
   }
 
   public static final class ClimberConstants {
