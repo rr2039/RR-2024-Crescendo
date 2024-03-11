@@ -46,7 +46,7 @@ public class Flipper extends ProfiledPIDSubsystem {
 
   double flipperCurSetpoint = FlipperConstants.flipperHome;
 
-  ArmFeedforward feedforward = new ArmFeedforward(0, -2.44, 0, 0);
+  ArmFeedforward feedforward = new ArmFeedforward(0, 1.256, 0, 0);
 
   Shoulder shoulder;
 
@@ -129,7 +129,7 @@ public class Flipper extends ProfiledPIDSubsystem {
 
   @Override
   protected void useOutput(double output, State setpoint) {
-    double ff = feedforward.calculate(degreesToRadians(setpoint.position + shoulder.getShoulderPos() - 83.0), setpoint.velocity);
+    double ff = feedforward.calculate(degreesToRadians(-1*setpoint.position + shoulder.getShoulderPos() -85.4), setpoint.velocity);
     flipper.setVoltage(output + ff);
   }
 
