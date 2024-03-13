@@ -28,7 +28,7 @@ public class AutoAim extends Command {
 
   XboxController driverController;
 
-  PIDController turnPID = new PIDController(0.4, 0, 0.01);
+  PIDController turnPID = new PIDController(1.6, 0, 0.01);
 
   AprilTagFieldLayout layout;
 

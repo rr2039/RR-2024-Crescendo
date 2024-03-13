@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
 import frc.robot.autos.Mobility;
 import frc.robot.autos.SPSourceSide;
+import frc.robot.autos.Test;
 import frc.robot.commands.AmpShot;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.Climb;
@@ -97,6 +99,10 @@ public class RobotContainer {
                 true, false, true),
             m_robotDrive));
 
+    NamedCommands.registerCommand("ShooterFeed", new ShooterFeed(m_intake, m_shooter, m_shoulder));
+    NamedCommands.registerCommand("IntakeOn", new IntakeIn(m_intake, m_shoulder, m_shooter, m_ledUtil, m_driverController, m_operatorController));
+    NamedCommands.registerCommand("AutoAim", new AutoAim(m_robotDrive, m_poseEst, m_driverController));
+
     // Build an auto chooser. This will use Commands.none() as the default option.
     auto_chooser = AutoBuilder.buildAutoChooser();
 
@@ -105,6 +111,7 @@ public class RobotContainer {
 
     auto_chooser.addOption("Mobility", new Mobility());
     auto_chooser.addOption("SP Source Side", new SPSourceSide(m_shooter, m_shoulder, m_intake, m_poseEst));
+    auto_chooser.addOption("Test", new Test(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
 
     SmartDashboard.putData("Auto Chooser", auto_chooser);
   }

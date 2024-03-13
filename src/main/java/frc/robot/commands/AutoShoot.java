@@ -16,6 +16,7 @@ public class AutoShoot extends Command {
     Shoulder shoulder;
     Intake intake;
     int counter = 0;
+    boolean shot = false;
   /** Creates a new AutoShoot. */
   public AutoShoot(Shooter m_shooter, Shoulder m_shoulder, Intake m_intake) {
     shooter = m_shooter;
@@ -29,6 +30,7 @@ public class AutoShoot extends Command {
   @Override
   public void initialize() {
     counter = 0;
+    shot = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -36,18 +38,20 @@ public class AutoShoot extends Command {
   public void execute() {
     //shoulder.setShoulderSetpoint(80);
     //shooter.setShooterSetpoint(1200);
-    if (shooter.atSetpoint()) {
+    if (shooter.atSetpoint() && intake.hasNote()) {
       intake.setBeltSpeed(1);
+      shot = true;
+    }
+    if (shot) {
       counter++;
     }
-
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.setShooterSetpoint(0);
     intake.setBeltSpeed(0);
+    shooter.setShooterSetpoint(0);
   }
 
   // Returns true when the command should end.

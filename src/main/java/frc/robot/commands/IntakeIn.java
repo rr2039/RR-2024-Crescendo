@@ -57,7 +57,7 @@ public class IntakeIn extends Command {
         intake.setBeltSpeed(0.35);
         intake.goToGround();
         if (intake.atGround() && intake.intakingNote()) {
-          ledUtil.setAll(LEDEffect.FLASH, LEDEffects.rrGreen);
+          ledUtil.setAll(LEDEffect.SOLID, LEDEffects.rrGreen);
         }
       } else {
         intake.setBeltSpeed(0);

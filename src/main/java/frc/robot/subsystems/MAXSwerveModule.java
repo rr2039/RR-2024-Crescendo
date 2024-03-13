@@ -126,12 +126,12 @@ public class MAXSwerveModule {
 
   // Revs/second to Revs/min
   public double getDriveVelocity() {
-    return (m_drivingTalonFX.getVelocity().refresh().getValueAsDouble() * 60) * ModuleConstants.kDrivingEncoderVelocityFactor;
+    return (m_drivingTalonFX.getVelocity().getValueAsDouble()) * ModuleConstants.kDrivingEncoderVelocityFactor;
   }
 
 
   private double getDrivePosition() {
-    return m_drivingTalonFX.getPosition().refresh().getValueAsDouble() * ModuleConstants.kDrivingEncoderPositionFactor;
+    return m_drivingTalonFX.getPosition().getValueAsDouble() * ModuleConstants.kDrivingEncoderPositionFactor;
   }
 
   /**

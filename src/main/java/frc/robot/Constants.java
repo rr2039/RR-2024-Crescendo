@@ -91,18 +91,14 @@ public final class Constants {
     public static final double idleSpeed = 500;
 
     public static final double[][] shooterData = {
-      {1.2, 1200},
-      {1.22, 1200},
-      {1.49, 1200},
-      {1.87, 1200},
-      {2, 1200},
-      {2.6, 1400},
-      {3, 1500},
-      {3.33, 1550},
+      {1.27, 1200},
+      {1.98, 1200},
+      {2.52, 1400},
+      {3.04, 1500},
+      {3.5, 1550},
       {4.03, 1600},
-      {4.5, 1700},
-      {4.75, 1700},
-      {5.1, 1700}
+      {4.51, 1700},
+      {5.01, 1700}
     };
   }
 
@@ -119,18 +115,14 @@ public final class Constants {
     public static final double kShoulderFF = 0;
 
     public static final double[][] shoulderData = {
-      {1.2, 60.4},
-      {1.22, 60.4},
-      {1.49, 54.9},
-      {1.87, 50.9},
-      {2, 50.4},
-      {2.6, 42.9},
-      {3, 37.4},
-      {3.33, 34.4},
-      {4.03, 31.4},
-      {4.5, 31.4},
-      {4.75, 29.4},
-      {5.1, 28.4}
+      {1.27, 59.5},
+      {1.98, 50},
+      {2.52, 45},
+      {3.04, 39.25},
+      {3.5, 36.4},
+      {4.03, 33.75},
+      {4.51, 31.25},
+      {5.01, 29.3}
     };
 
     public static double kMaxVelocity = 215;
@@ -144,7 +136,7 @@ public final class Constants {
     public static final int intakeCanId = 26;
 
     public static final double flapperHome = 0;
-    public static final double flapperGround = 27;
+    public static final double flapperGround = 23;
 
     public static final Color noteColor = new Color("#8B5D15");
 
@@ -216,7 +208,7 @@ public final class Constants {
     public static final double kDrivingP = 0.02;
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0;
-    public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
+    public static final double kDrivingFF = 1 / kDrivingMotorFreeSpeedRps;
     public static final double kDrivingMinOutput = -1;
     public static final double kDrivingMaxOutput = 1;
 

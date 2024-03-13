@@ -206,15 +206,15 @@ public class Shoulder extends ProfiledPIDSubsystem {
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
       SmartDashboard.putNumber("Vision Range", range);
       if (PoseUtils.inRange(range)) {
-        //setShoulderSetpoint(interpolator.getInterpolatedValue(range));
+        setShoulderSetpoint(interpolator.getInterpolatedValue(range));
       }
       counter = 0;
     } else if (!manualOverride && hasNote.get()) {
       double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
-      distanceToTarget = (1.47 * distanceToTarget) + -1.46;
+      distanceToTarget = (1.25 * distanceToTarget) -1.05;
       SmartDashboard.putNumber("Pose Range", distanceToTarget);
       if (PoseUtils.inRange(distanceToTarget)) {
-        //setShoulderSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
+        setShoulderSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
       }
       counter = 0;
     } else {

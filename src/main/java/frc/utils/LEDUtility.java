@@ -23,13 +23,12 @@ public class LEDUtility extends SubsystemBase {
   /** Creates a new LEDUtility. */
   public LEDUtility(int _port) {
     addressableLED = new AddressableLED(_port);
-    addressableLED.start();
   }
 
   public void addStrip(LEDStrip _strip) {
     ledStrips.add(_strip);
     overallLength = overallLength + _strip.getLength();
-    setLength();
+    setLength(overallLength);
   }
 
   public LEDStrip getStrip(int index) {
@@ -64,9 +63,9 @@ public class LEDUtility extends SubsystemBase {
     getStrip(6).setEffect(LEDEffect.RAINBOW);
   }
 
-  private void setLength() {
-    filler = new AddressableLEDBuffer(overallLength);
-    addressableLED.setLength(overallLength);
+  private void setLength(int length) {
+    filler = new AddressableLEDBuffer(length);
+    addressableLED.setLength(length);
   }
 
   private Color getAlliance() {
@@ -85,7 +84,7 @@ public class LEDUtility extends SubsystemBase {
         LEDEffects.setRSLFlashing(_strip);
         break;
       case FLASH:
-        LEDEffects.setFlashing(_strip, 5);
+        LEDEffects.setFlashing(_strip, 10);
         break;
       case PULSE:
         LEDEffects.setPulsing(_strip, 50);

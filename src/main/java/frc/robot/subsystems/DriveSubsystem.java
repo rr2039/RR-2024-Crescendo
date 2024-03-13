@@ -65,7 +65,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void powDrive(double xInput, double yInput, double rotInput, boolean fieldRelative, boolean rateLimit, boolean rotLimit) {
     double inputTranslationDir = Math.atan2(yInput, xInput);
-    double inputTranslationMag = Math.pow(Math.sqrt(Math.pow(xInput, 2) + Math.pow(yInput, 2)), 3);
+    double inputTranslationMag = Math.pow(Math.sqrt(Math.pow(xInput, 2) + Math.pow(yInput, 2)), 2);
     double xSpeed = Math.cos(inputTranslationDir) * inputTranslationMag;
     double ySpeed = Math.sin(inputTranslationDir) * inputTranslationMag;
     double rSpeed = Math.pow(Math.abs(rotInput), 2) * Math.signum(rotInput);
@@ -156,6 +156,17 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
+  public void driveChassisSpeeds(ChassisSpeeds speeds) {
+    System.out.println(speeds.vxMetersPerSecond + " " + speeds.vyMetersPerSecond + " " + speeds.omegaRadiansPerSecond);
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_rearLeft.setDesiredState(swerveModuleStates[2]);
+    m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
+
   /**
    * Sets the wheels into an X formation to prevent movement.
    */
@@ -219,7 +230,8 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
       };
-    return Arrays.stream(test).toArray(SwerveModulePosition[]::new);
+    return test;
+    //return Arrays.stream(test).toArray(SwerveModulePosition[]::new);
   }
 
   public SwerveModuleState[] getModuleStates() {
@@ -229,7 +241,8 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearLeft.getState(),
           m_rearRight.getState()
       };
-    return Arrays.stream(test).toArray(SwerveModuleState[]::new);
+    return test;
+    //return Arrays.stream(test).toArray(SwerveModuleState[]::new);
   }
 
   public Rotation2d newHeading() {
