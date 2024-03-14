@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.72,
+      "y": 6.71
+    },
+    "rotation": -120.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Amp #1 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake #4 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot #4 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake #5 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot #5 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Amp #6 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Amp Shoot #6 CIR"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

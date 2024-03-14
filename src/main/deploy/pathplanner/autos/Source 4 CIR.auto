@@ -1,0 +1,55 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.72,
+      "y": 4.38
+    },
+    "rotation": 120.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake #8 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot #8 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake #7 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot #7 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake #6 CIR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot #6 CIR"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

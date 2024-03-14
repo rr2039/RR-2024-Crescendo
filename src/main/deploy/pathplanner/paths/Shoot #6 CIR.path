@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.934421687025192,
+        "y": 4.104648209296419
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.016348396333155,
+        "y": 4.608400489528252
+      },
+      "isLocked": false,
+      "linkedName": "#6"
+    },
+    {
+      "anchor": {
+        "x": 3.3353499434271594,
+        "y": 2.891911238367931
+      },
+      "prevControl": {
+        "x": 5.434317777726465,
+        "y": 3.3023760592975733
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Shoot #8"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 145.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
