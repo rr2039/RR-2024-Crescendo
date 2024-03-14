@@ -6,6 +6,7 @@ package frc.utils;
 
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.utils.LEDEffects.LEDEffect;
 
 /** Add your docs here. */
 public class LEDStrip {
@@ -14,12 +15,32 @@ public class LEDStrip {
     int helperPos = 0;
     boolean invert = false;
     AddressableLEDBuffer buffer;
+    Color color = LEDEffects.rrGreen;
+    LEDEffect effect = LEDEffect.SOLID;
 
     public LEDStrip(int _start, int _stop, boolean _invert) {
         start = _start;
         stop = _stop;
         invert = _invert;
-        buffer = new AddressableLEDBuffer(stop - start);
+        buffer = new AddressableLEDBuffer((stop - start) + 1);
+    }
+
+    public LEDStrip(int _start, int _stop) {
+        start = _start;
+        stop = _stop;
+        buffer = new AddressableLEDBuffer((stop - start) + 1);
+    }
+
+    public LEDEffect getEffect() {
+        return effect;
+    }
+
+    public boolean getInverted() {
+        return invert;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public int getStart() {
@@ -36,6 +57,18 @@ public class LEDStrip {
 
     public int getLength() {
         return buffer.getLength();
+    }
+
+    public void setEffect(LEDEffect _effect) {
+        effect = _effect;
+    }
+
+    public void setInverted(boolean _invert) {
+        invert = _invert;
+    }
+
+    public void setColor(Color _color) {
+        color = _color;
     }
 
     public void setStart(int _start) {

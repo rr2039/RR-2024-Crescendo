@@ -15,31 +15,39 @@ import com.revrobotics.ColorSensorV3;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShoulderConstants;
 
-public class Intake extends SubsystemBase {
+public class Intake extends ProfiledPIDSubsystem {
 
   CANSparkMax belt;
   CANSparkMax flapper;
   CANSparkMax intake;
-  AbsoluteEncoder flapperEnc;
-  SparkPIDController flapperPID;
 
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
-  ColorSensorV3 colorSensor = new ColorSensorV3(i2cPort);
-  private ColorMatch m_colorMatcher = new ColorMatch();
+  Encoder flapperRel = new Encoder(4, 5);
+  DutyCycleEncoder flapperAbs = new DutyCycleEncoder(3);
+  // 240 Old Value Conversion
 
-  private DigitalInput intakePhotoEye;
+  DigitalInput queuePhotoEye = new DigitalInput(7);
+  DigitalInput intakePhotoEye = new DigitalInput(6);
+
   Debouncer debounce = new Debouncer(0.1, DebounceType.kBoth);
 
   ShuffleboardTab intakeTab = Shuffleboard.getTab("Intake");
@@ -50,12 +58,27 @@ public class Intake extends SubsystemBase {
   GenericEntry flapperD;
   GenericEntry flapperFF;
   GenericEntry hasNote;
+  GenericEntry intakingNote;
   GenericEntry colorSensorRead;
+  GenericEntry busVoltage;
+  GenericEntry appliedOutput;
 
   double flapperCurSetpoint =  IntakeConstants.flapperHome;
 
+  double flapperOffset = 0;
+
   /** Creates a new Intake. */
   public Intake() {
+    super(
+        new ProfiledPIDController(
+            IntakeConstants.kFlapperP,
+            0,
+            0,
+            new TrapezoidProfile.Constraints(
+                IntakeConstants.kMaxVelocity,
+                IntakeConstants.kMaxAcceleration)),
+        IntakeConstants.flapperHome);
+
     belt = new CANSparkMax(IntakeConstants.beltCanId, MotorType.kBrushless);
     flapper = new CANSparkMax(IntakeConstants.flapperCanId, MotorType.kBrushless);
     intake = new CANSparkMax(IntakeConstants.intakeCanId, MotorType.kBrushless);
@@ -67,28 +90,14 @@ public class Intake extends SubsystemBase {
     // This aint working, so screw it.
     //intake.setInverted(true);
 
-    flapperEnc = flapper.getAbsoluteEncoder(Type.kDutyCycle);
-    flapperEnc.setPositionConversionFactor(240); //TODO: CALCULATE CONVERSION FACTOR
+    //belt.setSmartCurrentLimit(40, 40);
+    flapper.setSmartCurrentLimit(40, 40);
+    //intake.setSmartCurrentLimit(40, 40);
     flapperPos = intakeTab.add("FlapperPos", getFlapperPos()).getEntry();
-
-    flapper.setSoftLimit(SoftLimitDirection.kForward, 24);
-    flapper.setSoftLimit(SoftLimitDirection.kReverse, 60);
 
     flapper.setIdleMode(IdleMode.kBrake);
     intake.setIdleMode(IdleMode.kBrake);
     belt.setIdleMode(IdleMode.kBrake);
-
-    flapperPID = flapper.getPIDController();
-    flapperPID.setFeedbackDevice(flapperEnc);
-    
-    flapperPID.setP(IntakeConstants.kFlapperP);
-    flapperP = intakeTab.add("FlapperP", flapperPID.getP(0)).getEntry();
-    flapperPID.setI(IntakeConstants.kFlapperI);
-    flapperI = intakeTab.add("FlapperI", flapperPID.getI(0)).getEntry();
-    flapperPID.setD(IntakeConstants.kFlapperD);
-    flapperD = intakeTab.add("FlapperD", flapperPID.getD(0)).getEntry();
-    flapperPID.setFF(IntakeConstants.kFlapperFF);
-    flapperFF = intakeTab.add("FlapperFF", flapperPID.getFF(0)).getEntry();
 
     flapperSetpoint = intakeTab.add("FlapperSetpoint", flapperCurSetpoint).getEntry();
 
@@ -96,36 +105,38 @@ public class Intake extends SubsystemBase {
     belt.burnFlash();
     intake.burnFlash();
 
-    intakePhotoEye = new DigitalInput(0);
-
-    m_colorMatcher.addColorMatch(IntakeConstants.noteColor);
-    m_colorMatcher.addColorMatch(new Color("#7E6619"));
-    m_colorMatcher.addColorMatch(new Color("#876116"));
-    m_colorMatcher.addColorMatch(new Color("#876017"));
-    m_colorMatcher.addColorMatch(new Color("#856117"));
-    m_colorMatcher.addColorMatch(new Color("#8F5C13"));
-    m_colorMatcher.addColorMatch(new Color("#925913"));
-    m_colorMatcher.addColorMatch(new Color("#915A13"));
-    m_colorMatcher.addColorMatch(new Color("#786A1C"));
-    m_colorMatcher.addColorMatch(new Color("#7F6619"));
-    m_colorMatcher.addColorMatch(new Color("#895F16"));
     hasNote = intakeTab.add("Has Note", hasNote()).getEntry();
+    intakingNote = intakeTab.add("Intaking Note", intakingNote()).getEntry();
     //colorSensorRead = intakeTab.add("Color Sensed", colorSensor.getColor().toString()).getEntry();
+
+    //flapperRel.reset();
+    flapperRel.setDistancePerPulse(240.0/2048.0);
+    flapperRel.setReverseDirection(true);
+    flapperAbs.setDutyCycleRange(1/1025, 1025/1025);
+    flapperAbs.setDistancePerRotation(240);
+    //absolute.setPositionOffset(15);
+    flapperOffset = ((flapperAbs.getAbsolutePosition()) * 240) - 83;
+    System.out.println(flapperOffset);
+
+    m_controller.reset(getFlapperPos());
+
+    appliedOutput = intakeTab.add("AppliedOutput", flapper.getAppliedOutput()).getEntry();
+    busVoltage = intakeTab.add("BusVoltage", flapper.getBusVoltage()).getEntry();
   }
 
   public boolean hasNote() {
-    /*ColorMatchResult sensed = m_colorMatcher.matchColor(colorSensor.getColor());
-    if (sensed != null) {
-      return true;
-    } else {
-      return false;
-    }*/
     //return !intakePhotoEye.get();
-    return debounce.calculate(!intakePhotoEye.get());
+    //return debounce.calculate(intakePhotoEye.getVoltage() < 1);
+    return !queuePhotoEye.get();
+  }
+
+  public boolean intakingNote() {
+    return intakePhotoEye.get();
   }
 
   public double getFlapperPos() {
-    return flapperEnc.getPosition();
+    //return flapperEnc.getPosition();
+    return flapperRel.getDistance() + flapperOffset;
   }
 
   public void setBeltSpeed(double speed) {
@@ -141,7 +152,14 @@ public class Intake extends SubsystemBase {
   }
 
   public void moveFlapperToPos(double degrees) {
-    flapperPID.setReference(degrees, ControlType.kPosition);
+    //flapperPID.setReference(degrees, ControlType.kPosition);
+    if (degrees < IntakeConstants.flapperHome) {
+      degrees = IntakeConstants.flapperHome;
+    }
+    if (degrees > IntakeConstants.flapperGround) {
+      degrees = IntakeConstants.flapperGround;
+    }
+    setGoal(degrees);
   }
   
   public void setFlapperSetpoint(double degrees) {
@@ -152,34 +170,49 @@ public class Intake extends SubsystemBase {
     return flapperCurSetpoint;
   }
 
+  public boolean atGround() {
+    return IntakeConstants.flapperGround - 2 <= getFlapperPos() && getFlapperPos() <= IntakeConstants.flapperGround + 2;
+  }
+
+  public void goToGround() {
+    flapperCurSetpoint = IntakeConstants.flapperGround;
+  }
+
+  public void goHome() {
+    flapperCurSetpoint = IntakeConstants.flapperHome;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     flapperPos.setDouble(getFlapperPos());
     hasNote.setBoolean(hasNote());
+    intakingNote.setBoolean(intakingNote());
+    flapperSetpoint.setDouble(flapperCurSetpoint);
+    busVoltage.setDouble(flapper.getBusVoltage());
+    appliedOutput.setDouble(flapper.getAppliedOutput());
+
+
+    moveFlapperToPos(flapperCurSetpoint);
+    useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
+    
     //colorSensorRead.setString(colorSensor.getColor().toString());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       flapperSetpoint.setDouble(flapperCurSetpoint);
-      double tempP = flapperP.getDouble(flapperPID.getP(0));
-      if (flapperPID.getP(0) != tempP) {
-        flapperPID.setP(tempP, 0);
-      }
-      double tempI = flapperI.getDouble(flapperPID.getI(0));
-      if (flapperPID.getI(0) != tempI) {
-        flapperPID.setI(tempI, 0);
-      }
-      double tempD = flapperD.getDouble(flapperPID.getD(0));
-      if (flapperPID.getD(0) != tempD) {
-        flapperPID.setD(tempD, 0);
-      }
-      double tempFF = flapperFF.getDouble(flapperPID.getFF(0));
-      if (flapperPID.getFF(0) != tempFF) {
-        flapperPID.setFF(tempFF, 0);
-      }
       double tempSetpoint = flapperSetpoint.getDouble (flapperCurSetpoint);
       if (flapperCurSetpoint != tempSetpoint) {
         setFlapperSetpoint(tempSetpoint);
       }
     }
+  }
+
+  @Override
+  protected void useOutput(double output, State setpoint) {
+    flapper.setVoltage(output);
+  }
+
+  @Override
+  protected double getMeasurement() {
+    return getFlapperPos();
   }
 }

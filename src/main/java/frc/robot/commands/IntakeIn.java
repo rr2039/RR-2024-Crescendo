@@ -6,12 +6,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
+import frc.utils.LEDEffects;
 import frc.utils.LEDUtility;
+import frc.utils.LEDEffects.LEDEffect;
 
 // Move flap to ground pos
 
@@ -41,6 +44,7 @@ public class IntakeIn extends Command {
   @Override
   public void initialize() {
     extraRuntime = 0;
+    ledUtil.setAll(LEDEffect.SOLID, Color.kFirstRed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -48,16 +52,17 @@ public class IntakeIn extends Command {
   public void execute() {
     if (shoulder.isHome()) {
       if (!intake.hasNote()) {
-        intake.moveFlapperToPos(IntakeConstants.flapperGround);
         // This is negative to remove the need to invert spark
-        intake.setIntakeSpeed(-0.75);
+        intake.setIntakeSpeed(-1);
         intake.setBeltSpeed(0.35);
-        //LEDEffects.setPulsing(ledUtil.getStrip(0), Color.kFirstRed, 10);
+        intake.goToGround();
+        if (intake.atGround() && intake.intakingNote()) {
+          ledUtil.setAll(LEDEffect.SOLID, LEDEffects.rrGreen);
+        }
       } else {
-        //shooter.setIdle();
         intake.setBeltSpeed(0);
         intake.setIntakeSpeed(0); 
-        intake.moveFlapperToPos(IntakeConstants.flapperHome);
+        intake.setFlapperSetpoint(IntakeConstants.flapperHome);
         if (extraRuntime % 5 == 0) {
           driver.setRumble(RumbleType.kBothRumble, 0);
           operator.setRumble(RumbleType.kBothRumble, 0);
@@ -65,7 +70,8 @@ public class IntakeIn extends Command {
           driver.setRumble(RumbleType.kBothRumble, 1);
           operator.setRumble(RumbleType.kBothRumble, 1);
         }
-        //LEDEffects.setFlashing(ledUtil.getStrip(0), LEDEffects.rrGreen, 10);
+
+        ledUtil.setAll(LEDEffect.SOLID, LEDEffects.rrGreen);
         extraRuntime++;
       }
     } else {
@@ -81,9 +87,10 @@ public class IntakeIn extends Command {
     if (interrupted) {
       intake.setBeltSpeed(0);
       intake.setIntakeSpeed(0); 
-      intake.moveFlapperToPos(IntakeConstants.flapperHome);
+      intake.goHome();
     }
     //LEDEffects.setSolidColor(ledUtil.getStrip(0), Color.kBlack);
+    ledUtil.setDefault();
   }
 
   // Returns true when the command should end.

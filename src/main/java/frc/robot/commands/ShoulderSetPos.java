@@ -27,9 +27,9 @@ public class ShoulderSetPos extends Command {
   @Override
   public void execute() {
     if (setpoint) {
-      shoulder.setShoulderSetpoint(shoulder.getShoulderSetpoint()+5);
+      shoulder.setShoulderSetpoint(shoulder.getShoulderSetpoint()+0.5);
     } else {
-      shoulder.setShoulderSetpoint(shoulder.getShoulderSetpoint()-5);
+      shoulder.setShoulderSetpoint(shoulder.getShoulderSetpoint()-0.5);
     }
   }
 

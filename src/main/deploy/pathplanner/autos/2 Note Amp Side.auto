@@ -2,31 +2,56 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.71,
-      "y": 6.73
+      "x": 1.4,
+      "y": 5.52
     },
-    "rotation": -119.87462712315215
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "Pickup Note 1"
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShooterFeed"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Intake #2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeOn"
+                }
+              }
+            ]
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 0.75
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Score Note 1"
+            "name": "ShooterFeed"
           }
         }
       ]

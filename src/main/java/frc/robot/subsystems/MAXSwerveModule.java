@@ -124,9 +124,11 @@ public class MAXSwerveModule {
     m_drivingTalonFX.setPosition(0);
   }
 
+  // Revs/second to Revs/min
   public double getDriveVelocity() {
-    return (m_drivingTalonFX.getVelocity().getValueAsDouble() * 10) * ModuleConstants.kDrivingEncoderVelocityFactor;
+    return (m_drivingTalonFX.getVelocity().getValueAsDouble()) * ModuleConstants.kDrivingEncoderVelocityFactor;
   }
+
 
   private double getDrivePosition() {
     return m_drivingTalonFX.getPosition().getValueAsDouble() * ModuleConstants.kDrivingEncoderPositionFactor;
@@ -172,8 +174,13 @@ public class MAXSwerveModule {
     SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
         new Rotation2d(m_turningEncoder.getPosition()));
 
+    double test = (optimizedDesiredState.speedMetersPerSecond / (ModuleConstants.kWheelDiameterMeters * Math.PI)) * ModuleConstants.kDrivingMotorReduction;  
     // Command driving and turning SPARKS MAX towards their respective setpoints.
-    VelocityDutyCycle optimizedSpeed = new VelocityDutyCycle(optimizedDesiredState.speedMetersPerSecond / ModuleConstants.kDrivingEncoderVelocityFactor);
+    //System.out.println(optimizedDesiredState.speedMetersPerSecond);
+    //System.out.println(test);
+    VelocityDutyCycle optimizedSpeed = new VelocityDutyCycle(test);
+    //System.out.println(optimizedDesiredState.speedMetersPerSecond);
+    optimizedSpeed.EnableFOC = true;
     m_drivingTalonFX.setControl(optimizedSpeed);
     m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 

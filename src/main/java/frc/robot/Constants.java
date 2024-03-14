@@ -83,15 +83,22 @@ public final class Constants {
     public static final int leftShooterCanId = 20;
     public static final int rightShooterCanId = 21;
 
-    public static final double kShooterP = 0.0005;
+    public static final double kShooterP = 0.001;
     public static final double kShooterI = 0;
-    public static final double kShooterD = 0;
-    public static final double kShooterFF = 0.00020;
+    public static final double kShooterD = 0.0001;
+    public static final double kShooterFF = 0;
 
     public static final double idleSpeed = 500;
 
     public static final double[][] shooterData = {
-      {0,0}
+      {1.27, 1200},
+      {1.98, 1200},
+      {2.52, 1400},
+      {3.04, 1500},
+      {3.5, 1550},
+      {4.03, 1600},
+      {4.51, 1700},
+      {5.01, 1700}
     };
   }
 
@@ -100,16 +107,26 @@ public final class Constants {
     public static final int leftShoulderCanId = 22;
     public static final int rightShoulderCanId = 23;
 
-    public static final double shoulderHome = 75;
+    public static final double shoulderHome = 50;
 
-    public static final double kShoulderP = 0.05;
+    public static final double kShoulderP = (0.05*12.0);
     public static final double kShoulderI = 0;
     public static final double kShoulderD = 0;
     public static final double kShoulderFF = 0;
 
     public static final double[][] shoulderData = {
-      {0,0}
+      {1.27, 59.5},
+      {1.98, 50},
+      {2.52, 45},
+      {3.04, 39.25},
+      {3.5, 36.4},
+      {4.03, 33.75},
+      {4.51, 31.25},
+      {5.01, 29.3}
     };
+
+    public static double kMaxVelocity = 215;
+    public static double kMaxAcceleration = 4000;
   }
 
   public static final class IntakeConstants {
@@ -118,27 +135,33 @@ public final class Constants {
     public static final int flapperCanId = 25;
     public static final int intakeCanId = 26;
 
-    public static final double flapperHome = 24;
-    public static final double flapperGround = 60;
+    public static final double flapperHome = 0;
+    public static final double flapperGround = 23;
 
     public static final Color noteColor = new Color("#8B5D15");
 
-    public static final double kFlapperP = 0.01;
+    public static final double kFlapperP = (0.035*12.0);
     public static final double kFlapperI = 0;
     public static final double kFlapperD = 0;
     public static final double kFlapperFF = 0;
+
+    public static double kMaxVelocity = 100;
+    public static double kMaxAcceleration = 1000;
   }
 
   public static final class FlipperConstants {
     //SPARK MAX CAN IDs
     public static final int flipperCanId = 27;
 
-    public static final double kFlipperP = 0;
+    public static final double kFlipperP = 0.5;
     public static final double kFlipperI = 0;
-    public static final double kFlipperD = 0;
+    public static final double kFlipperD = 0.1;
     public static final double kFlipperFF = 0;
 
-    public static final double flipperHome = 0;
+    public static final double flipperHome = 90;
+
+    public static double kMaxVelocity = 10;
+    public static double kMaxAcceleration = 10;
   }
 
   public static final class ClimberConstants {
@@ -182,10 +205,10 @@ public final class Constants {
     public static final double kTurningEncoderPositionPIDMinInput = 0; // radians
     public static final double kTurningEncoderPositionPIDMaxInput = kTurningEncoderPositionFactor; // radians
 
-    public static final double kDrivingP = 0.04/2;
+    public static final double kDrivingP = 0.02;
     public static final double kDrivingI = 0;
     public static final double kDrivingD = 0;
-    public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps;
+    public static final double kDrivingFF = 1 / kDrivingMotorFreeSpeedRps;
     public static final double kDrivingMinOutput = -1;
     public static final double kDrivingMaxOutput = 1;
 
@@ -205,7 +228,7 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
-    public static final double kDriveDeadband = 0.06;
+    public static final double kDriveDeadband = 0.07;
     public static final int kOperatorControllerPort = 1;
     public static final double kOperatorDeadband = 0.05;
   }
@@ -226,17 +249,17 @@ public final class Constants {
   }
 
   public static final class NeoMotorConstants {
-    public static final double kFreeSpeedRpm = 6000;
+    public static final double kFreeSpeedRpm = 5800;
   }
 
   public static final class VisionConstants {
-    public static final double CAMERA_HEIGHT_METERS = 0.17145;
-    public static final double CAMERA_PITCH_RADIANS = degreesToRadians(24.0);
+    public static final double CAMERA_HEIGHT_METERS = 0.161925;
+    public static final double CAMERA_PITCH_RADIANS = degreesToRadians(37.5);
     public static final double TARGET_HEIGHT_METERS = 1.4351;
     /** Physical location of the apriltag camera on the robot, relative to the center of the robot. */
     public static final Transform3d APRILTAG_CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(-0.32385, 0.1016, 0.17145),
-        new Rotation3d(0.0, degreesToRadians(24.0), degreesToRadians(0.0)));
+        new Translation3d(-0.32385, 0.1016, 0.161925),
+        new Rotation3d(0.0, degreesToRadians(37.5), degreesToRadians(5.0)));
 
     public static final double FIELD_LENGTH_METERS = 16.54175;
     public static final double FIELD_WIDTH_METERS = 8.0137;

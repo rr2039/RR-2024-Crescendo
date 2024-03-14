@@ -29,6 +29,9 @@ public class Climber extends SubsystemBase {
     rightClimber.restoreFactoryDefaults();
     leftClimber.restoreFactoryDefaults();
 
+    rightClimber.setSmartCurrentLimit(30, 40);
+    leftClimber.setSmartCurrentLimit(30, 40);
+
     rightClimber.setSoftLimit(SoftLimitDirection.kForward, 0);
     rightClimber.setSoftLimit(SoftLimitDirection.kReverse, -90);
 

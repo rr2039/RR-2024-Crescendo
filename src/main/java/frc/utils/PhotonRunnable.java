@@ -40,7 +40,7 @@ public class PhotonRunnable implements Runnable {
       layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
       if (photonCamera != null) {
         photonPoseEstimator = new PhotonPoseEstimator(
-            layout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, photonCamera, APRILTAG_CAMERA_TO_ROBOT.inverse());
+            layout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, APRILTAG_CAMERA_TO_ROBOT.inverse());
       }
     //} catch(IOException e) {
     //  DriverStation.reportError("Failed to load AprilTagFieldLayout", e.getStackTrace());
@@ -55,7 +55,7 @@ public class PhotonRunnable implements Runnable {
     if (photonPoseEstimator != null && photonCamera != null && !RobotState.isAutonomous()) {
       photonResults = photonCamera.getLatestResult();
       if (photonResults.hasTargets()) {
-        hasAResult = photonResults;
+        //hasAResult = photonResults;
           //&& (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < APRILTAG_AMBIGUITY_THRESHOLD)) { 
         photonPoseEstimator.update(photonResults).ifPresent(estimatedRobotPose -> {
           var estimatedPose = estimatedRobotPose.estimatedPose;
@@ -84,6 +84,6 @@ public class PhotonRunnable implements Runnable {
   }
 
   public PhotonPipelineResult grabLatestTag() {
-    return hasAResult;
+    return photonResults;
   }
 }

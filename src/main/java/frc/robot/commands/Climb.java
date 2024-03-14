@@ -31,7 +31,7 @@ public class Climb extends Command {
     if (lift) {
       // Down
       climber.setClimberSpeed(0.5);
-      shoulder.setShoulderSetpoint(35);
+      shoulder.setShoulderSetpoint(20);
     } else {
       // Up
       climber.setClimberSpeed(-0.75);

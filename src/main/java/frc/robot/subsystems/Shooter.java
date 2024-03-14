@@ -5,20 +5,30 @@
 package frc.robot.subsystems;
 
 import java.util.function.Supplier;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import frc.utils.PoseUtils;
+import org.photonvision.PhotonUtils;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.utils.LinearInterpolator;
 import frc.utils.PoseEstimatorSubsystem;
 
@@ -36,17 +46,26 @@ public class Shooter extends SubsystemBase {
   GenericEntry shooterI;
   GenericEntry shooterD;
   GenericEntry shooterFF;
+  GenericEntry busVoltage;
+  GenericEntry appliedOutput;
 
   Supplier<Boolean> hasNote;
-  boolean hadNote = false;
 
   PoseEstimatorSubsystem poseEst;
 
   double shooterCurSetpoint = 0;
   
-  SlewRateLimiter shooterSlew = new SlewRateLimiter(1500);
+  SlewRateLimiter shooterSlew = new SlewRateLimiter(6000);
 
   private LinearInterpolator interpolator = new LinearInterpolator(ShooterConstants.shooterData);
+
+  SimpleMotorFeedforward arbFF = new SimpleMotorFeedforward(-0.2573, 0.002508);
+
+  boolean manualOverride = false;
+
+  AprilTagFieldLayout layout;
+
+  int counter = 0;
 
   /** Creates a new Shooter. */
   public Shooter(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
@@ -56,13 +75,16 @@ public class Shooter extends SubsystemBase {
     rightShooter = new CANSparkMax(ShooterConstants.rightShooterCanId, MotorType.kBrushless);
     leftShooter = new CANSparkMax(ShooterConstants.leftShooterCanId, MotorType.kBrushless);
 
-    shooterEnc = rightShooter.getEncoder();
-    shooterEnc.setPositionConversionFactor(2); //TODO: CALCULATE CONVERSION FACTOR
-    shooterEnc.setVelocityConversionFactor(2);
-    shooterPos = shooterTab.add("ShooterPos", getShooterSpeed()).getEntry();
-
     rightShooter.restoreFactoryDefaults();
     leftShooter.restoreFactoryDefaults();
+
+    leftShooter.setSmartCurrentLimit(40, 40);
+    rightShooter.setSmartCurrentLimit(40, 40);
+    
+    shooterEnc = rightShooter.getEncoder();
+    shooterEnc.setPositionConversionFactor(1); //TODO: CALCULATE CONVERSION FACTOR
+    shooterEnc.setVelocityConversionFactor(1);
+    shooterPos = shooterTab.add("ShooterPos", getShooterSpeed()).getEntry();
 
     leftShooter.follow(rightShooter, true);
 
@@ -83,8 +105,15 @@ public class Shooter extends SubsystemBase {
 
     shooterSetpoint = shooterTab.add("ShooterSetpoint", shooterCurSetpoint).getEntry();
 
+    appliedOutput = shooterTab.add("AppliedOutput", leftShooter.getAppliedOutput()).getEntry();
+    busVoltage = shooterTab.add("BusVoltage", leftShooter.getBusVoltage()).getEntry();
+
     rightShooter.burnFlash();
     leftShooter.burnFlash();
+
+    layout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    // PV estimates will always be blue, they'll get flipped by robot thread
+    layout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
   }
 
   public double getShooterSpeed() {
@@ -96,7 +125,7 @@ public class Shooter extends SubsystemBase {
   }
   
   public void setShooterSpeed(double velocity) {
-    shooterPID.setReference(shooterSlew.calculate(velocity), ControlType.kVelocity);
+    shooterPID.setReference(shooterSlew.calculate(velocity), ControlType.kVelocity, 0, arbFF.calculate(velocity));
   }
 
   public void setShooterSetpoint(double velocity) {
@@ -108,38 +137,61 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return shooterCurSetpoint - 100 <= getShooterSpeed() && getShooterSpeed() <= shooterCurSetpoint + 100;
+    return (shooterCurSetpoint - 50 <= getShooterSpeed() && getShooterSpeed() <= shooterCurSetpoint + 50) && shooterCurSetpoint > 0;
   }
 
   public void setIdle() {
     shooterCurSetpoint = ShooterConstants.idleSpeed;
   }
+
   public double calculateSpeedFromDistance(double distance) {
     return interpolator.getInterpolatedValue(distance);
+  }
+
+  public boolean getManualOverride() {
+    return manualOverride;
+  }
+
+  public void setManualOverride(boolean override) {
+    manualOverride = override;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
-    /*if (hasNote.get() && !hadNote) {
-      shooterCurSetpoint = ShooterConstants.idleSpeed;
-      hadNote = true;
-    } else if (!hasNote.get() && hadNote) {
-      hadNote = false;
-    }*/
     setShooterSpeed(shooterCurSetpoint);
 
-    /*if (isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+    if (!manualOverride && hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
                       VisionConstants.CAMERA_PITCH_RADIANS,
                       Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      setShooterSetpoint(calculateSpeedFromDistance(range));
-    }*/
+      //System.out.println("Vision Range: " + range);
+      if (PoseUtils.inRange(range)) {
+        setShooterSetpoint(interpolator.getInterpolatedValue(range));
+      }
+      counter = 0;
+      //setShoulderSetpoint(calculateAngleFromDistance(range));
+    } else if (!manualOverride && hasNote.get()) {
+      double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
+      distanceToTarget = (1.25 * distanceToTarget) -1.05;
+      //System.out.println("Pose Range: " + distanceToTarget);
+      if (PoseUtils.inRange(distanceToTarget)) {
+        setShooterSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
+      }
+      counter = 0;
+    } else {
+      if (counter == (1 * 50)) {
+        setShooterSetpoint(0);
+      } else {
+        counter++;
+      }
+    }
 
     shooterPos.setDouble(getShooterSpeed());
+    busVoltage.setDouble(leftShooter.getBusVoltage());
+    appliedOutput.setDouble(leftShooter.getAppliedOutput());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       shooterSetpoint.setDouble(shooterCurSetpoint);
       double tempP = shooterP.getDouble(shooterPID.getP(0));
@@ -166,6 +218,6 @@ public class Shooter extends SubsystemBase {
   }
 
   private boolean isSpeakerTag(double tag) {
-    return (tag == 7 || tag == 8 || tag == 3 || tag == 4);
+    return (tag == 7 || tag == 4);
   }
 }
