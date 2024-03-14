@@ -23,7 +23,7 @@ public class AutoShoot extends Command {
     shoulder = m_shoulder;
     intake = m_intake;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooter, shoulder, intake);
+    addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.

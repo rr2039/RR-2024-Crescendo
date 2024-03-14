@@ -37,7 +37,7 @@ public class IntakeIn extends Command {
     driver = m_driverController;
     operator = m_operatorController;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_intake, m_shoulder);
+    addRequirements(m_intake);
   }
 
   // Called when the command is initially scheduled.
