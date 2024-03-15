@@ -15,13 +15,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
+import frc.robot.autos.Amp1CIR;
 import frc.robot.autos.Amp2CIR;
 import frc.robot.autos.Amp4CIR;
+import frc.robot.autos.Center1CIR;
 import frc.robot.autos.Center2CIR;
 import frc.robot.autos.Center4CIR;
 import frc.robot.autos.Center5CIR;
 import frc.robot.autos.Mobility;
 import frc.robot.autos.SPSourceSide;
+import frc.robot.autos.Source1CIR;
 import frc.robot.autos.Source2CIR;
 import frc.robot.autos.Source3CIR;
 import frc.robot.autos.Source4CIR;
@@ -129,6 +132,10 @@ public class RobotContainer {
     auto_chooser.addOption("Center2CIR Manual", new Center2CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
     auto_chooser.addOption("Amp2CIR Manual", new Amp2CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
     auto_chooser.addOption("Source2CIR Manual", new Source2CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Amp1CIR Manual", new Amp1CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Center1CIR Manual", new Center1CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Source1CIR Manual", new Source1CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+
 
     SmartDashboard.putData("Auto Chooser", auto_chooser);
   }
