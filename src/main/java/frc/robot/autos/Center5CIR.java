@@ -4,11 +4,15 @@
 
 package frc.robot.autos;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.RestoreAction;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -33,6 +37,8 @@ public class Center5CIR extends SequentialCommandGroup {
     PathPlannerPath note3Path = PathPlannerPath.fromPathFile("Intake #3 CIR");
     PathPlannerPath note8Path = PathPlannerPath.fromPathFile("Center #8 CIR");
     PathPlannerPath shoot8Path = PathPlannerPath.fromPathFile("Shoot #8 CIR");
+    Command resetPose = new InstantCommand(() -> poseEst.setCurrentPose(note1Path.getPreviewStartingHolonomicPose()));
+
 
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
@@ -46,7 +52,9 @@ public class Center5CIR extends SequentialCommandGroup {
     }
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new AutoShoot(shooter, shoulder, intake), 
+    addCommands(
+        resetPose,
+        new AutoShoot(shooter, shoulder, intake), 
         new ParallelCommandGroup(new IntakeIn(intake, shoulder, shooter, ledUtil, driver, oper).withTimeout(3), AutoBuilder.followPath(note1Path)), 
         new AutoAim(drive, poseEst, driver).withTimeout(1), 
         new WaitCommand(1), 

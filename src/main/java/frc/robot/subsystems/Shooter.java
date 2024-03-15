@@ -10,6 +10,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.utils.PoseUtils;
 import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -25,10 +26,14 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.utils.LEDEffects.LEDEffect;
+import frc.utils.LEDEffects;
+import frc.utils.LEDUtility;
 import frc.utils.LinearInterpolator;
 import frc.utils.PoseEstimatorSubsystem;
 
@@ -67,8 +72,11 @@ public class Shooter extends SubsystemBase {
 
   int counter = 0;
 
+  LEDUtility ledUtil;
+
   /** Creates a new Shooter. */
-  public Shooter(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst) {
+  public Shooter(Supplier<Boolean> m_hasNote, PoseEstimatorSubsystem m_poseEst, LEDUtility m_ledUtil) {
+    ledUtil = m_ledUtil;
     hasNote = m_hasNote;
     poseEst = m_poseEst;
 
@@ -161,15 +169,18 @@ public class Shooter extends SubsystemBase {
     // This method will be called once per scheduler run
     setShooterSpeed(shooterCurSetpoint);
 
-    if (!manualOverride && hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
-      double range = PhotonUtils.calculateDistanceToTargetMeters(
-                      VisionConstants.CAMERA_HEIGHT_METERS,
-                      VisionConstants.TARGET_HEIGHT_METERS,
-                      VisionConstants.CAMERA_PITCH_RADIANS,
-                      Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      //System.out.println("Vision Range: " + range);
-      if (PoseUtils.inRange(range)) {
-        setShooterSetpoint(interpolator.getInterpolatedValue(range));
+    if (!manualOverride && hasNote.get() && poseEst.getLatestTag() != null && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
+      PhotonPipelineResult tag = poseEst.getLatestTag();
+      if (tag != null && tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
+        double range = PhotonUtils.calculateDistanceToTargetMeters(
+                        VisionConstants.CAMERA_HEIGHT_METERS,
+                        VisionConstants.TARGET_HEIGHT_METERS,
+                        VisionConstants.CAMERA_PITCH_RADIANS,
+                        Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
+        //System.out.println("Vision Range: " + range);
+        if (PoseUtils.inRange(range)) {
+          setShooterSetpoint(interpolator.getInterpolatedValue(range));
+        }
       }
       counter = 0;
       //setShoulderSetpoint(calculateAngleFromDistance(range));
@@ -187,6 +198,18 @@ public class Shooter extends SubsystemBase {
       } else {
         counter++;
       }
+    }
+
+    if (atSetpoint()) {
+      ledUtil.getStrip(2).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(2).setColor(LEDEffects.rrGreen);
+      ledUtil.getStrip(4).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(4).setColor(LEDEffects.rrGreen);
+    } else {
+      ledUtil.getStrip(2).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(2).setColor(Color.kBlack);
+      ledUtil.getStrip(4).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(4).setColor(Color.kBlack);
     }
 
     shooterPos.setDouble(getShooterSpeed());

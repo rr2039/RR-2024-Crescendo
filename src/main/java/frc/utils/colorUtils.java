@@ -11,7 +11,7 @@ Im lazy and dont want to put this in for R,G,and B. So I made a new method.
         return colorComponent/12.92;
     }
     else {
-        return Math.pow((colorComponent + 0.055)/1.0555,2.4);
+        return Math.pow((colorComponent + 0.055)/1.0555,2.8);
     }
     }
 

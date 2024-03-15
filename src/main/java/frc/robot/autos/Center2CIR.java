@@ -27,40 +27,27 @@ import frc.utils.PoseEstimatorSubsystem;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class Center4CIR extends SequentialCommandGroup {
-  /** Creates a new Center4CIR. */
-  public Center4CIR(Shooter shooter, Shoulder shoulder, Intake intake, PoseEstimatorSubsystem poseEst, LEDUtility ledUtil, XboxController driver, XboxController oper, DriveSubsystem drive) {
+public class Center2CIR extends SequentialCommandGroup {
+  /** Creates a new Center2CIR. */
+  public Center2CIR(Shooter shooter, Shoulder shoulder, Intake intake, PoseEstimatorSubsystem poseEst, LEDUtility ledUtil, XboxController driver, XboxController oper, DriveSubsystem drive) {
     PathPlannerPath note1Path = PathPlannerPath.fromPathFile("Intake #1 CIR");
-    PathPlannerPath note2Path = PathPlannerPath.fromPathFile("Intake #2 CIR");
-    PathPlannerPath note3Path = PathPlannerPath.fromPathFile("Intake #3 CIR");
     Command resetPose = new InstantCommand(() -> poseEst.setCurrentPose(note1Path.getPreviewStartingHolonomicPose()));
-  
+
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if(alliance.get() == DriverStation.Alliance.Red) {
-        note1Path.flipPath(); 
-        note2Path.flipPath();
-        note3Path.flipPath();
+        note1Path.flipPath();
       }
     }
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        resetPose,
-        new AutoShoot(shooter, shoulder, intake).withTimeout(2), 
-        new ParallelCommandGroup(new IntakeIn(intake, shoulder, shooter, ledUtil, driver, oper).withTimeout(6), AutoBuilder.followPath(note1Path)), 
-        new AutoAim(drive, poseEst, driver).withTimeout(1), 
-        new WaitCommand(1), 
-        new AutoShoot(shooter, shoulder, intake), 
-        new ParallelCommandGroup(new IntakeIn(intake, shoulder, shooter, ledUtil, driver, oper).withTimeout(6), AutoBuilder.followPath(note2Path)),
-        new AutoAim(drive, poseEst, driver).withTimeout(1), 
-        new WaitCommand(1), 
-        new AutoShoot(shooter, shoulder, intake),
-        new ParallelCommandGroup(new IntakeIn(intake, shoulder, shooter, ledUtil, driver, oper).withTimeout(6), AutoBuilder.followPath(note3Path)),
-        new AutoAim(drive, poseEst, driver).withTimeout(1), 
-        new WaitCommand(1), 
-        new AutoShoot(shooter, shoulder, intake)
-        );
-        
+      resetPose,
+      new AutoShoot(shooter, shoulder, intake).withTimeout(2), 
+      new ParallelCommandGroup(new IntakeIn(intake, shoulder, shooter, ledUtil, driver, oper).withTimeout(6), AutoBuilder.followPath(note1Path)), 
+      new AutoAim(drive, poseEst, driver).withTimeout(1), 
+      new WaitCommand(1), 
+      new AutoShoot(shooter, shoulder, intake).withTimeout(1)
+    );
   }
 }

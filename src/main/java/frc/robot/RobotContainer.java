@@ -15,11 +15,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
+import frc.robot.autos.Amp2CIR;
+import frc.robot.autos.Amp4CIR;
+import frc.robot.autos.Center2CIR;
+import frc.robot.autos.Center4CIR;
+import frc.robot.autos.Center5CIR;
 import frc.robot.autos.Mobility;
 import frc.robot.autos.SPSourceSide;
+import frc.robot.autos.Source2CIR;
+import frc.robot.autos.Source3CIR;
+import frc.robot.autos.Source4CIR;
 import frc.robot.autos.Test;
 import frc.robot.commands.AmpShot;
 import frc.robot.commands.AutoAim;
+import frc.robot.commands.AutoAimNote;
 import frc.robot.commands.Climb;
 import frc.robot.commands.IntakeIn;
 import frc.robot.commands.IntakeOut;
@@ -49,16 +58,16 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+    public LEDUtility m_ledUtil = new LEDUtility(0);
+
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final Intake m_intake = new Intake();
+  private final Intake m_intake = new Intake(m_ledUtil);
   public PoseEstimatorSubsystem m_poseEst = new PoseEstimatorSubsystem(m_robotDrive);
   private final Shoulder m_shoulder = new Shoulder(m_intake::hasNote, m_poseEst);
-  private final Shooter m_shooter = new Shooter(m_intake::hasNote, m_poseEst);
+  private final Shooter m_shooter = new Shooter(m_intake::hasNote, m_poseEst, m_ledUtil);
   private final Climber m_climber = new Climber();
   //private final Flipper m_flipper = new Flipper(m_shoulder);
-
-  public LEDUtility m_ledUtil = new LEDUtility(0);
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -109,9 +118,17 @@ public class RobotContainer {
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
-    auto_chooser.addOption("Mobility", new Mobility());
-    auto_chooser.addOption("SP Source Side", new SPSourceSide(m_shooter, m_shoulder, m_intake, m_poseEst));
-    auto_chooser.addOption("Test", new Test(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Mobility Manual", new Mobility(m_poseEst));
+    auto_chooser.addOption("SP Source Side Manual", new SPSourceSide(m_shooter, m_shoulder, m_intake, m_poseEst));
+    auto_chooser.addOption("Test Manual", new Test(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Center4CIR Manual", new Center4CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Source3CIR Manual", new Source3CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Amp4CIR Manual", new Amp4CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Source4CIR Manual", new Source4CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Center5CIR Manual", new Center5CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Center2CIR Manual", new Center2CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Amp2CIR Manual", new Amp2CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
+    auto_chooser.addOption("Source2CIR Manual", new Source2CIR(m_shooter, m_shoulder, m_intake, m_poseEst, m_ledUtil, m_driverController, m_operatorController, m_robotDrive));
 
     SmartDashboard.putData("Auto Chooser", auto_chooser);
   }
@@ -138,6 +155,8 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
     new JoystickButton(m_driverController, Button.kA.value)
         .whileTrue(new AutoAim(m_robotDrive, m_poseEst, m_driverController));
+    new JoystickButton(m_driverController, Button.kX.value)
+        .whileTrue(new AutoAimNote(m_robotDrive, m_driverController));
 
     // OPERATOR CONTROLLER
     new JoystickButton(m_operatorController, Button.kRightBumper.value)

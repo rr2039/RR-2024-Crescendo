@@ -57,6 +57,6 @@ public class AutoShoot extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return counter == (2 * 50);
+    return counter == (1 * 50);
   }
 }

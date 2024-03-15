@@ -68,7 +68,7 @@ public class LEDStrip {
     }
 
     public void setColor(Color _color) {
-        color = _color;
+        color = colorUtils.gammaCorrection(_color);
     }
 
     public void setStart(int _start) {

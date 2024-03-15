@@ -90,7 +90,9 @@ public class IntakeIn extends Command {
       intake.goHome();
     }
     //LEDEffects.setSolidColor(ledUtil.getStrip(0), Color.kBlack);
-    ledUtil.setDefault();
+    //ledUtil.setDefault();
+    ledUtil.getStrip(0).setEffect(LEDEffect.ALLIANCE);
+    ledUtil.getStrip(5).setEffect(LEDEffect.ALLIANCE);
   }
 
   // Returns true when the command should end.

@@ -18,6 +18,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.utils.PoseUtils;
 import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.revrobotics.AbsoluteEncoder;
@@ -198,15 +199,18 @@ public class Shoulder extends ProfiledPIDSubsystem {
     moveShoulderToPos(shoulderCurSetpoint);
     useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
 
-    if (!manualOverride && hasNote.get() && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
-      double range = PhotonUtils.calculateDistanceToTargetMeters(
-                      VisionConstants.CAMERA_HEIGHT_METERS,
-                      VisionConstants.TARGET_HEIGHT_METERS,
-                      VisionConstants.CAMERA_PITCH_RADIANS,
-                      Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-      SmartDashboard.putNumber("Vision Range", range);
-      if (PoseUtils.inRange(range)) {
-        setShoulderSetpoint(interpolator.getInterpolatedValue(range));
+    if (!manualOverride && hasNote.get()) {
+      PhotonPipelineResult tag = poseEst.getLatestTag();
+      if (tag != null && tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
+        double range = PhotonUtils.calculateDistanceToTargetMeters(
+                        VisionConstants.CAMERA_HEIGHT_METERS,
+                        VisionConstants.TARGET_HEIGHT_METERS,
+                        VisionConstants.CAMERA_PITCH_RADIANS,
+                        Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
+        SmartDashboard.putNumber("Vision Range", range);
+        if (PoseUtils.inRange(range)) {
+          setShoulderSetpoint(interpolator.getInterpolatedValue(range));
+        }
       }
       counter = 0;
     } else if (!manualOverride && hasNote.get()) {

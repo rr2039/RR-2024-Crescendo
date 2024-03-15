@@ -9,6 +9,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -34,6 +36,8 @@ public class Source4CIR extends SequentialCommandGroup {
     PathPlannerPath shoot7Path = PathPlannerPath.fromPathFile("Shoot #7 CIR");
     PathPlannerPath note6Path = PathPlannerPath.fromPathFile("Intake #6 CIR");
     PathPlannerPath shoot6Path = PathPlannerPath.fromPathFile("Shoot #6 CIR");
+    Command resetPose = new InstantCommand(() -> poseEst.setCurrentPose(note8Path.getPreviewStartingHolonomicPose()));
+
 
 
     var alliance = DriverStation.getAlliance();
@@ -49,7 +53,9 @@ public class Source4CIR extends SequentialCommandGroup {
     }
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new AutoShoot(shooter, shoulder, intake),
+    addCommands(
+        resetPose,
+        new AutoShoot(shooter, shoulder, intake),
         new ParallelCommandGroup(new IntakeIn(intake, shoulder, shooter, ledUtil, driver, oper).withTimeout(4), AutoBuilder.followPath(note8Path)),
         AutoBuilder.followPath(shoot8Path),
         new AutoAim(drive, poseEst, driver),

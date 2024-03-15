@@ -32,8 +32,11 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShoulderConstants;
+import frc.utils.LEDUtility;
+import frc.utils.LEDEffects.LEDEffect;
 
 public class Intake extends ProfiledPIDSubsystem {
 
@@ -67,8 +70,10 @@ public class Intake extends ProfiledPIDSubsystem {
 
   double flapperOffset = 0;
 
+  LEDUtility ledUtil;
+
   /** Creates a new Intake. */
-  public Intake() {
+  public Intake(LEDUtility m_ledUtil) {
     super(
         new ProfiledPIDController(
             IntakeConstants.kFlapperP,
@@ -78,6 +83,8 @@ public class Intake extends ProfiledPIDSubsystem {
                 IntakeConstants.kMaxVelocity,
                 IntakeConstants.kMaxAcceleration)),
         IntakeConstants.flapperHome);
+
+    ledUtil = m_ledUtil;
 
     belt = new CANSparkMax(IntakeConstants.beltCanId, MotorType.kBrushless);
     flapper = new CANSparkMax(IntakeConstants.flapperCanId, MotorType.kBrushless);
@@ -195,6 +202,17 @@ public class Intake extends ProfiledPIDSubsystem {
 
     moveFlapperToPos(flapperCurSetpoint);
     useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
+    if (hasNote()) {
+      ledUtil.getStrip(1).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(1).setColor(Color.kOrange);
+      ledUtil.getStrip(3).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(3).setColor(Color.kOrange);
+    } else {
+      ledUtil.getStrip(1).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(1).setColor(Color.kBlack);
+      ledUtil.getStrip(3).setEffect(LEDEffect.SOLID);
+      ledUtil.getStrip(3).setColor(Color.kBlack);
+    }
     
     //colorSensorRead.setString(colorSensor.getColor().toString());
     if (Constants.CODEMODE == Constants.MODES.TEST) {
