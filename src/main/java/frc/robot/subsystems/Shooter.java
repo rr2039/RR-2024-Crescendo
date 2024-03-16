@@ -169,18 +169,16 @@ public class Shooter extends SubsystemBase {
     // This method will be called once per scheduler run
     setShooterSpeed(shooterCurSetpoint);
 
-    if (!manualOverride && hasNote.get() && poseEst.getLatestTag() != null && poseEst.getLatestTag().hasTargets() && isSpeakerTag(poseEst.getLatestTag().getBestTarget().getFiducialId())) {
-      PhotonPipelineResult tag = poseEst.getLatestTag();
-      if (tag != null && tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
-        double range = PhotonUtils.calculateDistanceToTargetMeters(
-                        VisionConstants.CAMERA_HEIGHT_METERS,
-                        VisionConstants.TARGET_HEIGHT_METERS,
-                        VisionConstants.CAMERA_PITCH_RADIANS,
-                        Units.degreesToRadians(poseEst.getLatestTag().getBestTarget().getPitch()));
-        //System.out.println("Vision Range: " + range);
-        if (PoseUtils.inRange(range)) {
-          setShooterSetpoint(interpolator.getInterpolatedValue(range));
-        }
+    PhotonPipelineResult tag = poseEst.getLatestTag();
+    if (!manualOverride && hasNote.get() && tag != null && tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
+      double range = PhotonUtils.calculateDistanceToTargetMeters(
+                      VisionConstants.CAMERA_HEIGHT_METERS,
+                      VisionConstants.TARGET_HEIGHT_METERS,
+                      VisionConstants.CAMERA_PITCH_RADIANS,
+                      Units.degreesToRadians(tag.getBestTarget().getPitch()));
+      //System.out.println("Vision Range: " + range);
+      if (PoseUtils.inRange(range)) {
+        setShooterSetpoint(interpolator.getInterpolatedValue(range));
       }
       counter = 0;
       //setShoulderSetpoint(calculateAngleFromDistance(range));

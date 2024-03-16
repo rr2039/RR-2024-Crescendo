@@ -32,7 +32,8 @@ public class PhotonRunnable implements Runnable {
   private AprilTagFieldLayout layout;
 
   public PhotonRunnable() {
-    this.photonCamera = new PhotonCamera("ArduCam");;
+    this.photonCamera = new PhotonCamera("ArduCam");
+    this.photonCamera.setDriverMode(false);
     PhotonPoseEstimator photonPoseEstimator = null;
     //try {
       layout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
@@ -66,7 +67,8 @@ public class PhotonRunnable implements Runnable {
           }
         });
       }
-    }  
+    }
+    photonCamera.setDriverMode(false);  
   }
 
   /**

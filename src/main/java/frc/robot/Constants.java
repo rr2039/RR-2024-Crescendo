@@ -136,7 +136,7 @@ public final class Constants {
     public static final int intakeCanId = 26;
 
     public static final double flapperHome = 0;
-    public static final double flapperGround = 23;
+    public static final double flapperGround = 12;
 
     public static final Color noteColor = new Color("#8B5D15");
 

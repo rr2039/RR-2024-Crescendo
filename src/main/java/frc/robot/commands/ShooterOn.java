@@ -38,7 +38,7 @@ public class ShooterOn extends Command {
       driver.setRumble(RumbleType.kBothRumble, 1);
     }
     //shooter.setShooter(0.35);
-    //shoulder.setShoulderSetpoint(80); // 85
+    shoulder.setShoulderSetpoint(59.5); // 85
   }
 
   // Called once the command ends or is interrupted.
