@@ -71,8 +71,10 @@ public class Shoulder extends ProfiledPIDSubsystem {
   PoseEstimatorSubsystem poseEst;
 
   private LinearInterpolator interpolator = new LinearInterpolator(ShoulderConstants.shoulderData);
+  private LinearInterpolator interpolator2 = new LinearInterpolator(ShoulderConstants.shoulderData2);
 
   SlewRateLimiter shoulderSlew = new SlewRateLimiter(60);
+  SlewRateLimiter distanceLimiter = new SlewRateLimiter(1);
 
   ArmFeedforward feedforward = new ArmFeedforward(0, 0.4625, 0, 0);
 
@@ -200,7 +202,7 @@ public class Shoulder extends ProfiledPIDSubsystem {
     useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
 
     PhotonPipelineResult tag = poseEst.getLatestTag();
-    if (!manualOverride && hasNote.get() && tag != null && tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
+    if (!manualOverride && hasNote.get() && tag != null && tag.hasTargets() && tag.getLatencyMillis() < 20 && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
@@ -208,15 +210,15 @@ public class Shoulder extends ProfiledPIDSubsystem {
                       Units.degreesToRadians(tag.getBestTarget().getPitch()));
       SmartDashboard.putNumber("Vision Range", range);
       if (PoseUtils.inRange(range)) {
-        setShoulderSetpoint(interpolator.getInterpolatedValue(range));
+        setShoulderSetpoint(interpolator.getInterpolatedValue(distanceLimiter.calculate(range)));
       }
       counter = 0;
     } else if (!manualOverride && hasNote.get()) {
       double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
-      distanceToTarget = (1.25 * distanceToTarget) -1.05;
+      //distanceToTarget = (1.25 * distanceToTarget) -1.05;
       SmartDashboard.putNumber("Pose Range", distanceToTarget);
       if (PoseUtils.inRange(distanceToTarget)) {
-        setShoulderSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
+        setShoulderSetpoint(interpolator2.getInterpolatedValue(distanceLimiter.calculate(distanceToTarget)));
       }
       counter = 0;
     } else {

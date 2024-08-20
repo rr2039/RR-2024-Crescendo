@@ -63,6 +63,7 @@ public class Shooter extends SubsystemBase {
   SlewRateLimiter shooterSlew = new SlewRateLimiter(6000);
 
   private LinearInterpolator interpolator = new LinearInterpolator(ShooterConstants.shooterData);
+  private LinearInterpolator interpolator2 = new LinearInterpolator(ShooterConstants.shooterData2);
 
   SimpleMotorFeedforward arbFF = new SimpleMotorFeedforward(-0.2573, 0.002508);
 
@@ -170,7 +171,7 @@ public class Shooter extends SubsystemBase {
     setShooterSpeed(shooterCurSetpoint);
 
     PhotonPipelineResult tag = poseEst.getLatestTag();
-    if (!manualOverride && hasNote.get() && tag != null && tag.hasTargets() && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
+    if (!manualOverride && hasNote.get() && tag != null && tag.hasTargets() && tag.getLatencyMillis() < 20 && isSpeakerTag(tag.getBestTarget().getFiducialId())) {
       double range = PhotonUtils.calculateDistanceToTargetMeters(
                       VisionConstants.CAMERA_HEIGHT_METERS,
                       VisionConstants.TARGET_HEIGHT_METERS,
@@ -184,10 +185,10 @@ public class Shooter extends SubsystemBase {
       //setShoulderSetpoint(calculateAngleFromDistance(range));
     } else if (!manualOverride && hasNote.get()) {
       double distanceToTarget = PhotonUtils.getDistanceToPose(poseEst.getCurrentPose(), layout.getTagPose(PoseUtils.getSpeakerTag()).get().toPose2d());
-      distanceToTarget = (1.25 * distanceToTarget) -1.05;
+      //distanceToTarget = (1.25 * distanceToTarget) -1.05;
       //System.out.println("Pose Range: " + distanceToTarget);
       if (PoseUtils.inRange(distanceToTarget)) {
-        setShooterSetpoint(interpolator.getInterpolatedValue(distanceToTarget));
+        setShooterSetpoint(interpolator2.getInterpolatedValue(distanceToTarget));
       }
       counter = 0;
     } else {
@@ -196,18 +197,6 @@ public class Shooter extends SubsystemBase {
       } else {
         counter++;
       }
-    }
-
-    if (atSetpoint()) {
-      ledUtil.getStrip(2).setEffect(LEDEffect.SOLID);
-      ledUtil.getStrip(2).setColor(LEDEffects.rrGreen);
-      ledUtil.getStrip(4).setEffect(LEDEffect.SOLID);
-      ledUtil.getStrip(4).setColor(LEDEffects.rrGreen);
-    } else {
-      ledUtil.getStrip(2).setEffect(LEDEffect.SOLID);
-      ledUtil.getStrip(2).setColor(Color.kBlack);
-      ledUtil.getStrip(4).setEffect(LEDEffect.SOLID);
-      ledUtil.getStrip(4).setColor(Color.kBlack);
     }
 
     shooterPos.setDouble(getShooterSpeed());

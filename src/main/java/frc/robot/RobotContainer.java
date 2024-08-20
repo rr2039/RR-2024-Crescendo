@@ -113,7 +113,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("ShooterFeed", new ShooterFeed(m_intake, m_shooter, m_shoulder));
     NamedCommands.registerCommand("IntakeOn", new IntakeIn(m_intake, m_shoulder, m_shooter, m_ledUtil, m_driverController, m_operatorController));
-    NamedCommands.registerCommand("AutoAim", new AutoAim(m_robotDrive, m_poseEst, m_driverController));
+    NamedCommands.registerCommand("AutoAim", new AutoAim(m_robotDrive, m_poseEst, m_driverController, m_shoulder, m_shooter, m_ledUtil));
 
     // Build an auto chooser. This will use Commands.none() as the default option.
     auto_chooser = AutoBuilder.buildAutoChooser();
@@ -161,9 +161,11 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kB.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
     new JoystickButton(m_driverController, Button.kA.value)
-        .whileTrue(new AutoAim(m_robotDrive, m_poseEst, m_driverController));
+        .whileTrue(new AutoAim(m_robotDrive, m_poseEst, m_driverController, m_shoulder, m_shooter, m_ledUtil));
     new JoystickButton(m_driverController, Button.kX.value)
         .whileTrue(new AutoAimNote(m_robotDrive, m_driverController));
+    new JoystickButton(m_driverController, Button.kY.value)
+        .whileTrue(new AmpShot(m_shooter, m_shoulder, m_driverController));
 
     // OPERATOR CONTROLLER
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
@@ -176,8 +178,8 @@ public class RobotContainer {
         .whileTrue(new Climb(m_climber, m_shoulder, false));
     new POVButton(m_operatorController, 270)
         .whileTrue(new ShooterOn(m_shooter, m_shoulder, m_driverController));
-    new POVButton(m_operatorController, 90)
-        .whileTrue(new AmpShot(m_shooter, m_shoulder, m_driverController));
+    //new POVButton(m_operatorController, 90)
+        //.whileTrue(new AmpShot(m_shooter, m_shoulder, m_driverController));
     new POVButton(m_operatorController, 0)
         .onTrue(new ShoulderSetPos(m_shoulder, true));
     new POVButton(m_operatorController, 180)

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.AutoShoot;
+import frc.robot.commands.AutoShoot2;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
@@ -36,6 +36,6 @@ public class SPSourceSide extends SequentialCommandGroup {
     //Command resetPose = new RunCommand(() -> poseEst.setCurrentPose(path.get), poseEst);
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new AutoShoot(shooter, shoulder, intake), pathAuto);
+    addCommands(new AutoShoot2(shooter, shoulder, intake), pathAuto);
   }
 }

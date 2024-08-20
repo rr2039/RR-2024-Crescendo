@@ -35,7 +35,6 @@ public class Source3CIR extends SequentialCommandGroup {
     PathPlannerPath shoot8Path = PathPlannerPath.fromPathFile("Shoot #8 CIR");
     PathPlannerPath note7Path = PathPlannerPath.fromPathFile("Intake #7 CIR");
     PathPlannerPath shoot7Path = PathPlannerPath.fromPathFile("Shoot #7 CIR");
-    Command resetPose = new InstantCommand(() -> poseEst.setCurrentPose(note8Path.getPreviewStartingHolonomicPose()));
 
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
@@ -46,6 +45,7 @@ public class Source3CIR extends SequentialCommandGroup {
         shoot7Path.flipPath();
       }
     }
+    Command resetPose = new InstantCommand(() -> poseEst.setCurrentPose(note8Path.getPreviewStartingHolonomicPose()));
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(

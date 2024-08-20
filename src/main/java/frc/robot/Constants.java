@@ -100,6 +100,17 @@ public final class Constants {
       {4.51, 1700},
       {5.01, 1700}
     };
+
+    public static final double[][] shooterData2 = {
+      {1.68, 1200},
+      {2.41, 1200},
+      {2.97, 1400},
+      {3.54, 1500},
+      {3.81, 1550},
+      {3.97, 1600},
+      {4.29, 1700},
+      {4.71, 1700}
+    };
   }
 
   public static final class ShoulderConstants {
@@ -123,6 +134,17 @@ public final class Constants {
       {4.03, 33.75},
       {4.51, 31.25},
       {5.01, 29.3}
+    };
+
+    public static final double[][] shoulderData2 = {
+      {1.68, 59.5},
+      {2.41, 50},
+      {2.97, 45},
+      {3.54, 39.25},
+      {3.81, 36.4},
+      {3.97, 33.75},
+      {4.29, 31.25},
+      {4.71, 29.3}
     };
 
     public static double kMaxVelocity = 215;
