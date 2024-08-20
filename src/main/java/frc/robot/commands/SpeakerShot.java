@@ -10,12 +10,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shoulder;
 
-public class ShooterOn extends Command {
+public class SpeakerShot extends Command {
   Shooter shooter;
   Shoulder shoulder;
   XboxController driver;
   /** Creates a new ShooterOn. */
-  public ShooterOn(Shooter m_shooter, Shoulder m_shoulder, XboxController m_driver) {
+  public SpeakerShot(Shooter m_shooter, Shoulder m_shoulder, XboxController m_driver) {
     shooter = m_shooter;
     shoulder = m_shoulder;
     driver = m_driver;
@@ -33,12 +33,12 @@ public class ShooterOn extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.setShooterSetpoint(1700); //1200 // 400
+    shooter.setShooterSetpoint(1200);
     if (shooter.atSetpoint()) {
       driver.setRumble(RumbleType.kBothRumble, 1);
     }
     //shooter.setShooter(0.35);
-    shoulder.setShoulderSetpoint(15); //59.5 // 85
+    shoulder.setShoulderSetpoint(59.5);
   }
 
   // Called once the command ends or is interrupted.

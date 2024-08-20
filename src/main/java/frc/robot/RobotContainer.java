@@ -38,6 +38,7 @@ import frc.robot.commands.IntakeOut;
 import frc.robot.commands.ShooterFeed;
 import frc.robot.commands.ShooterOn;
 import frc.robot.commands.ShoulderSetPos;
+import frc.robot.commands.SpeakerShot;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Flipper;
@@ -186,6 +187,8 @@ public class RobotContainer {
         .onTrue(new ShoulderSetPos(m_shoulder, false));
     new JoystickButton(m_operatorController, Button.kX.value)
         .onTrue(new RunCommand(() -> m_shoulder.setShoulderSetpoint(35), m_shoulder));
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .whileTrue(new SpeakerShot(m_shooter, m_shoulder, m_driverController));
   }
 
   /**
