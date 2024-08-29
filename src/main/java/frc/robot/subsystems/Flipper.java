@@ -46,7 +46,7 @@ public class Flipper extends ProfiledPIDSubsystem {
 
   double flipperCurSetpoint = FlipperConstants.flipperHome;
 
-  ArmFeedforward feedforward = new ArmFeedforward(0, 1.256, 0, 0);
+  ArmFeedforward feedforward = new ArmFeedforward(0, 1.256, 0, 0); //kg 1.256
 
   Shoulder shoulder;
 

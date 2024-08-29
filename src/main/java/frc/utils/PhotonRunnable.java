@@ -88,4 +88,4 @@ public class PhotonRunnable implements Runnable {
   public PhotonPipelineResult grabLatestTag() {
     return photonResults;
   }
-}
+}//

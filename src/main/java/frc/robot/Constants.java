@@ -175,12 +175,12 @@ public final class Constants {
     //SPARK MAX CAN IDs
     public static final int flipperCanId = 27;
 
-    public static final double kFlipperP = 0.5;
+    public static final double kFlipperP = 0; //0.5
     public static final double kFlipperI = 0;
-    public static final double kFlipperD = 0.1;
-    public static final double kFlipperFF = 0;
+    public static final double kFlipperD = 0;
+    public static final double kFlipperFF = 100;
 
-    public static final double flipperHome = 90;
+    public static final double flipperHome = 0;
 
     public static double kMaxVelocity = 10;
     public static double kMaxAcceleration = 10;
