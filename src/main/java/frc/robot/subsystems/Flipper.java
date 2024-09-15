@@ -2,6 +2,8 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
+//importing libraries
 package frc.robot.subsystems;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
@@ -28,11 +30,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.FlipperConstants;
 
+
+
 public class Flipper extends ProfiledPIDSubsystem {
 
-  CANSparkMax flipper;
-  RelativeEncoder flipperEnc;
-  SparkPIDController flipperPID;
+  CANSparkMax flipper; //flipper represents SparkMax
+  AbsoluteEncoder flipperEnc; //flipper encoder type
+  SparkPIDController flipperPID; //PID stuff
 
   ShuffleboardTab flipperTab = Shuffleboard.getTab("Flipper");
   GenericEntry flipperPos;
@@ -44,7 +48,7 @@ public class Flipper extends ProfiledPIDSubsystem {
   GenericEntry busVoltage;
   GenericEntry appliedOutput;
 
-  double flipperCurSetpoint = FlipperConstants.flipperHome;
+  double flipperCurSetpoint = FlipperConstants.flipperHome; //CHECK absalute encoder
 
   ArmFeedforward feedforward = new ArmFeedforward(0, 1.256, 0, 0); //kg 1.256
 
@@ -64,17 +68,23 @@ public class Flipper extends ProfiledPIDSubsystem {
 
     shoulder = m_shoulder;
 
-    flipper = new CANSparkMax(FlipperConstants.flipperCanId, MotorType.kBrushless);
-    
-    flipper.restoreFactoryDefaults();
 
-    flipperEnc = flipper.getAlternateEncoder(8192);
-    flipperEnc.setPositionConversionFactor(90); //TODO: CALCULATE CONVERSION FACTOR
+    //create flipper
+    flipper = new CANSparkMax(FlipperConstants.flipperCanId, MotorType.kBrushless); 
+
+    //reset
+    flipper.restoreFactoryDefaults(); 
+
+    //This line manualy sets num of ticks per revolution for relative encoder
+    //flipperEnc = flipper.getAlternateEncoder(8192); //Delete, not needed for absalute 
+    flipperEnc.setPositionConversionFactor(90); //TODO: CALCULATE CONVERSION FACTOR //The Reason Why it's here
     flipperPos = flipperTab.add("FlipperPos", getFlipperPos()).getEntry();
 
+    //software limit 
     flipper.setSoftLimit(SoftLimitDirection.kForward, 90);
     flipper.setSoftLimit(SoftLimitDirection.kReverse, 0);
 
+    //current limit
     flipper.setSmartCurrentLimit(40, 40);
 
     flipper.setIdleMode(IdleMode.kBrake);
@@ -87,6 +97,8 @@ public class Flipper extends ProfiledPIDSubsystem {
     busVoltage = flipperTab.add("BusVoltage", flipper.getBusVoltage()).getEntry();
   }
 
+  
+  //Simplified functions ready too use
   public double getFlipperPos() {
     return flipperEnc.getPosition();
   }
@@ -108,6 +120,7 @@ public class Flipper extends ProfiledPIDSubsystem {
     return flipperCurSetpoint;
   }
 
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
