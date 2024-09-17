@@ -77,8 +77,11 @@ public class Flipper extends ProfiledPIDSubsystem {
 
     //This line manualy sets num of ticks per revolution for relative encoder
     //flipperEnc = flipper.getAlternateEncoder(8192); //Delete, not needed for absalute 
-    flipperEnc.setPositionConversionFactor(90); //TODO: CALCULATE CONVERSION FACTOR //The Reason Why it's here
+    //flipperEnc.setPositionConversionFactor(360); //TODO: CALCULATE CONVERSION FACTOR //The Reason Why it's here
+    flipperEnc = flipper.getAbsoluteEncoder(Type.kDutyCycle);
     flipperPos = flipperTab.add("FlipperPos", getFlipperPos()).getEntry();
+
+
 
     //software limit 
     flipper.setSoftLimit(SoftLimitDirection.kForward, 90);

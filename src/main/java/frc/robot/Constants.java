@@ -178,7 +178,7 @@ public final class Constants {
     public static final double kFlipperP = 0; //0.5
     public static final double kFlipperI = 0;
     public static final double kFlipperD = 0;
-    public static final double kFlipperFF = 100;
+    public static final double kFlipperFF = 0;
 
     public static final double flipperHome = 0;
 
