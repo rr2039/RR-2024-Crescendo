@@ -36,7 +36,7 @@ public class Flipper extends ProfiledPIDSubsystem {
 
   CANSparkMax flipper; //flipper represents SparkMax
   AbsoluteEncoder flipperEnc; //flipper encoder type
-  SparkPIDController flipperPID; //PID stuff
+  SparkPIDController flipperPID; //No one is using it!!!
 
   ShuffleboardTab flipperTab = Shuffleboard.getTab("Flipper");
   GenericEntry flipperPos;
@@ -91,7 +91,6 @@ public class Flipper extends ProfiledPIDSubsystem {
     flipper.setSmartCurrentLimit(40, 40);
 
     flipper.setIdleMode(IdleMode.kBrake);
-
     flipperSetpoint = flipperTab.add("FlipperSetpoint", flipperCurSetpoint).getEntry();
 
     flipper.burnFlash();
@@ -134,6 +133,9 @@ public class Flipper extends ProfiledPIDSubsystem {
     moveFlipperToPos(flipperCurSetpoint);
     useOutput(m_controller.calculate(getMeasurement()), m_controller.getSetpoint());
 
+
+
+
     if (Constants.CODEMODE == Constants.MODES.TEST) {
       flipperSetpoint.setDouble(flipperCurSetpoint);
       double tempSetpoint = flipperSetpoint.getDouble (flipperCurSetpoint);
@@ -142,6 +144,9 @@ public class Flipper extends ProfiledPIDSubsystem {
       }
     }
   }
+
+
+
 
   @Override
   protected void useOutput(double output, State setpoint) {
